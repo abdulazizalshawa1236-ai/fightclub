@@ -9,6 +9,7 @@
   color-scheme: dark;
   font-family: var(--font-body);
   min-height: 100svh;
+  display: flow-root;
   background: #141416;
 }
 .member-experience h1,
@@ -182,10 +183,10 @@
 }
 .member-experience .member-login-grid {
   display: grid;
-  grid-template-columns: 1.12fr 1fr;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
   width: min(1240px, calc(100% - 80px));
-  margin: 16px auto 70px;
-  min-height: 685px;
+  margin: 0 auto 24px;
+  min-height: min(640px, calc(100svh - 112px));
   background: #1d1d20;
   border: 1px solid #303035;
   border-radius: 22px;
@@ -194,15 +195,20 @@
 .member-experience .member-login-story {
   position: relative;
   isolation: isolate;
-  min-height: 685px;
+  min-width: 0;
   display: flex;
-  align-items: end;
+  flex-direction: column;
+  justify-content: center;
   background: #232325;
 }
-.member-experience .member-login-story > img {
+.member-experience .member-story-art {
+  position: relative;
+  height: clamp(180px, 30svh, 270px);
+  flex-shrink: 0;
+}
+.member-experience .member-story-art > img {
   object-fit: contain;
-  object-position: center 24px;
-  z-index: -2;
+  object-position: center;
 }
 .member-experience .member-login-story::after {
   content: '';
@@ -217,7 +223,7 @@
   );
 }
 .member-experience .member-story-copy {
-  padding: 52px 48px;
+  padding: 24px 32px;
   width: 100%;
 }
 .member-experience .member-story-tag {
@@ -227,29 +233,29 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 7px;
   font-size: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   color: #eee;
 }
 .member-experience .member-story-copy h1 {
   font-family: var(--font-display);
-  font-size: clamp(40px, 4.8vw, 68px);
+  font-size: clamp(32px, 3.5vw, 48px);
   font-weight: 800;
   line-height: 1.06;
-  margin: 0 0 23px;
-  max-width: 8ch;
+  margin: 0 0 16px;
+  max-width: 16ch;
 }
 .member-experience[dir='rtl'] .member-story-copy h1 {
   font-family: var(--font-body);
-  font-size: clamp(36px, 4.2vw, 56px);
+  font-size: clamp(32px, 3.3vw, 44px);
   line-height: 1.28;
-  max-width: 12ch;
+  max-width: 18ch;
 }
 .member-experience .member-story-copy p {
   color: #c1c1c4;
-  font-size: 15px;
-  line-height: 1.85;
+  font-size: 14px;
+  line-height: 1.7;
   max-width: 34ch;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 .member-experience .member-story-link {
   display: inline-flex;
@@ -260,8 +266,9 @@
   font-size: 13px;
 }
 .member-experience .member-login-form {
-  padding: 50px clamp(28px, 4.5vw, 64px);
+  padding: 28px clamp(24px, 3.5vw, 48px);
   align-self: center;
+  min-width: 0;
 }
 .member-experience .member-auth-icon {
   display: inline-flex;
@@ -454,8 +461,14 @@
 }
 .member-experience .member-overview-grid {
   display: grid;
-  grid-template-columns: 1.55fr 1fr;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
   gap: 24px;
+}
+.member-experience :is(.member-overview-grid, .member-overview-side, .member-pass-dates) > * {
+  min-width: 0;
+}
+.member-experience :is(h1, h2, h3, p, dd, .member-class-summary, .member-update-body) {
+  overflow-wrap: anywhere;
 }
 .member-experience .member-pass {
   position: relative;
@@ -1091,7 +1104,7 @@
     width: calc(100% - 48px);
   }
   .member-experience .member-login-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .member-experience .member-login-form {
     padding: 38px 30px;
@@ -1100,7 +1113,7 @@
     padding: 38px 30px;
   }
   .member-experience .member-overview-grid {
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     gap: 18px;
   }
   .member-experience .member-pass {
@@ -1122,9 +1135,12 @@
   .member-experience .member-login-story {
     min-height: 280px;
   }
-  .member-experience .member-login-story > img {
+  .member-experience .member-story-art {
+    position: absolute;
+    inset: 0;
+    height: 100%;
     opacity: 0.2;
-    object-position: center;
+    z-index: -2;
   }
   .member-experience .member-story-copy {
     padding: 26px;
@@ -1155,7 +1171,7 @@
     grid-template-columns: 1fr;
   }
   .member-experience .member-overview-side {
-    grid-template-columns: 1.4fr 1fr;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     grid-template-rows: auto;
     align-items: stretch;
     gap: 15px;
@@ -1235,6 +1251,45 @@
   }
   .member-experience .member-overview-footer p {
     min-width: 75%;
+  }
+}
+@media (min-width: 761px) and (max-height: 850px) {
+  .member-experience .member-login-shell .member-topbar {
+    min-height: 80px;
+  }
+  .member-experience .member-login-form {
+    padding-block: 24px;
+  }
+  .member-experience .member-auth-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 14px;
+  }
+  .member-experience .member-login-form h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+  .member-experience .member-login-form .member-muted {
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .member-experience .member-login-form .portal-field {
+    margin-bottom: 14px;
+    gap: 6px;
+  }
+  .member-experience .member-login-form input:not([type='checkbox']) {
+    min-height: 46px;
+    padding-block: 10px;
+  }
+  .member-experience .member-login-form .portal-toggle {
+    margin-bottom: 16px;
+  }
+  .member-experience .member-login-help {
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+  .member-experience .member-security {
+    margin-top: 16px;
   }
 }
 @media (max-width: 440px) {

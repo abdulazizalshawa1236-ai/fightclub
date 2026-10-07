@@ -8,7 +8,8 @@
   --p-back: #f3f5f8;
   background: var(--p-back);
   color: var(--p-ink);
-  min-height: 100vh;
+  min-height: 100svh;
+  display: flow-root;
   font-family: var(--font-arabic), Arial, sans-serif;
   font-size: 15px;
   line-height: 1.55;
@@ -280,7 +281,7 @@
 .portal-auth-wrap {
   display: grid;
   place-items: center;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 36px 20px;
 }
 .portal-auth {
@@ -328,11 +329,19 @@
   color: #fff;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: 30px 18px 20px;
   border-inline-end: 1px solid #293548;
+}
+.portal-main,
+.portal-content-workspace > * {
+  min-width: 0;
+}
+.portal-sidebar > * {
+  flex-shrink: 0;
 }
 .portal-sidebar .portal-wordmark {
   padding: 0 14px 32px;

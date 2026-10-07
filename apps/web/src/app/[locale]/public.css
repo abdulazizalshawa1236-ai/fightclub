@@ -13,6 +13,7 @@
   color: var(--fc-text);
   overflow: clip;
   background: var(--fc-paper);
+  min-height: 100svh;
 }
 .fc-container {
   width: min(1280px, calc(100% - 104px));
@@ -594,7 +595,7 @@
 .fc-weekdays,
 .fc-days {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
 }
 .fc-weekdays {
@@ -604,6 +605,7 @@
   margin-bottom: 10px;
 }
 .fc-days button {
+  min-width: 0;
   border: 1px solid transparent;
   background: var(--fc-raised);
   aspect-ratio: 1;
@@ -808,6 +810,7 @@
   justify-content: center;
   align-items: flex-start;
   gap: 27px;
+  min-width: 0;
 }
 .fc-contact-details > a,
 .fc-contact-details > p {
@@ -817,6 +820,12 @@
   font-size: 20px;
   margin: 0;
   line-height: 1.6;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.fc-contact-details > a > span {
+  min-width: 0;
 }
 .fc-contact-details > a:hover {
   color: var(--fc-accent-text);
@@ -979,6 +988,8 @@
     display: none;
     position: absolute;
     top: 75px;
+    max-height: calc(100dvh - 75px);
+    overflow-y: auto;
     inset-inline: 0;
     background: var(--fc-black);
     align-items: stretch;
@@ -1014,7 +1025,7 @@
     font-size: 15px;
   }
   .fc-hero-brand {
-    margin-inline-end: -40px;
+    margin-inline-end: 0;
     min-width: 0;
   }
   .fc-hero-caption {
@@ -1082,6 +1093,7 @@
   }
   .fc-weekdays {
     font-size: 11px;
+    gap: 4px;
   }
   .fc-calendar-toolbar button {
     width: 32px;
@@ -1128,6 +1140,7 @@
   }
   .fc-nav-menu {
     top: 70px;
+    max-height: calc(100dvh - 70px);
     padding-inline: 20px;
   }
   .fc-nav-member {
@@ -1350,7 +1363,7 @@
     font-size: 29px;
   }
   .fc-weekdays {
-    font-size: 12px;
+    font-size: clamp(10px, 2.6vw, 12px);
   }
   .fc-days button {
     font-size: 17px;
