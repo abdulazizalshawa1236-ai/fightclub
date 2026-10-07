@@ -21,6 +21,8 @@ export type Plan = {
   benefits: Localized[];
   featured: boolean;
   visible: boolean;
+  badge?: Localized;
+  position?: number;
 };
 export type Offer = {
   id: string;
@@ -63,6 +65,13 @@ export type ClubSettings = {
   mapUrl: string;
   instagram: string;
   warningDays: number;
+  metaDescription?: Localized;
+  currencyLabel?: Localized;
+  countryCode?: string;
+  marquee?: Localized;
+  weekStart?: number;
+  footerText?: Localized;
+  socialLinks?: { x: string; snapchat: string; tiktok: string };
   notificationText?: { expiring: Localized; expired: Localized; renewed: Localized };
 };
 export type PublicSite = {
@@ -181,6 +190,15 @@ export type MessageDelivery = {
 export type ApiError = { code: string; message: string };
 export function text(value: Localized, locale: Locale): string {
   return value[locale] || value.ar;
+}
+export function renderMembershipReminder(
+  wording: string,
+  values: { name: string; club: string; date: string },
+): string {
+  return wording.replace(
+    /\{(name|club|date)\}/g,
+    (_, key: 'name' | 'club' | 'date') => values[key],
+  );
 }
 export function whatsappLink(settings: ClubSettings, message: string): string {
   let phone = settings.whatsapp.replace(/\D/g, '');

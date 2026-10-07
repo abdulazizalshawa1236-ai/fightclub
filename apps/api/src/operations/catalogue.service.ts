@@ -74,7 +74,11 @@ export class CatalogueService {
         ),
         plans: plans.rows
           .map((row) => planSchema.parse(row.data))
-          .filter((plan) => admin || plan.visible),
+          .filter((plan) => admin || plan.visible)
+          .sort(
+            (a, b) =>
+              (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER),
+          ),
         offers: offers.rows
           .map((row) => offerSchema.parse(row.data))
           .filter((offer) => admin || offer.visible),

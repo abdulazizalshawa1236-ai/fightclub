@@ -46,6 +46,17 @@ export function copyDate(date: string, to: string): string | null {
   target.setUTCDate(day);
   return target.toISOString().slice(0, 7) === to ? target.toISOString().slice(0, 10) : null;
 }
+function roomComponents(room: string): string[] {
+  return room.split('+').map((component) => {
+    const normalized = component.trim().toLowerCase().replace(/\s+/g, ' ');
+    const hall = /^(?:hall|صالة)\s*([ab])$/u.exec(normalized);
+    return hall ? `hall ${hall[1]}` : normalized;
+  });
+}
+function roomsOverlap(a: string, b: string): boolean {
+  const occupied = new Set(roomComponents(a));
+  return roomComponents(b).some((component) => occupied.has(component));
+}
 function clashes(a: ClassSession, b: ClassSession): boolean {
   return (
     a.id !== b.id &&
@@ -54,7 +65,7 @@ function clashes(a: ClassSession, b: ClassSession): boolean {
     a.date === b.date &&
     a.startTime < b.endTime &&
     b.startTime < a.endTime &&
-    (a.room === b.room || (a.coachId !== null && a.coachId === b.coachId))
+    (roomsOverlap(a.room, b.room) || (a.coachId !== null && a.coachId === b.coachId))
   );
 }
 @Injectable()

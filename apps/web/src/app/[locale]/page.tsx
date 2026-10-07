@@ -15,7 +15,9 @@ export async function generateMetadata({
   const { settings } = await getPublicSite();
   return {
     title: `${text(settings.name, locale)} | ${text(settings.tagline, locale)}`,
-    description: `${text(settings.tagline, locale)}. ${text(settings.address, locale)}`,
+    description: settings.metaDescription
+      ? text(settings.metaDescription, locale)
+      : `${text(settings.tagline, locale)}. ${text(settings.address, locale)}`,
     alternates: { canonical: `/${locale}`, languages: { ar: '/ar', en: '/en' } },
   };
 }
