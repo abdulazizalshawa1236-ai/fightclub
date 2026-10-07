@@ -1,0 +1,13 @@
+{
+  email {$TLS_EMAIL}
+}
+
+{$CLUB_DOMAIN} {
+  encode zstd gzip
+  handle /api/* {
+    reverse_proxy api:4100
+  }
+  handle {
+    reverse_proxy web:3100
+  }
+}

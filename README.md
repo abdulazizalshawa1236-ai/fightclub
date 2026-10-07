@@ -1,62 +1,54 @@
-# فايت كلوب
+# Fight Club platform
 
-موقع عربي وإنجليزي للنادي، ولوحة إدارة للمشتركين والباقات والعروض وأقسام الموقع وجدول الحصص. يستخدم Node.js وSQLite؛ بيانات الأعضاء تُحفظ في `data/club.db` والصور المرفوعة في `data/uploads/`.
+Bilingual club website, staff operations portal and private member portal. Rebuilt with Next.js 16, React 19, TypeScript, NestJS, PostgreSQL 17, Motion and S3-compatible media storage.
 
-## معاينة الموقع على Windows
+## Run locally
 
-1. نزّل Node.js بنسخة LTS من [nodejs.org](https://nodejs.org/en/download/).
-2. افتح مجلد `fightclub` وشغّل `start.bat` بنقرتين. في أول مرة يحتاج إنترنت لتثبيت المكتبات.
-3. اترك نافذة التشغيل مفتوحة، ثم افتح `http://localhost:3000` للموقع أو `http://localhost:3000/admin` للإدارة. لإيقافه اضغط `Ctrl+C` في النافذة.
+Requires Node.js 22.16+ and Docker.
 
-يتطلب Node.js 22 أو أحدث. لا تشغّل `npm install` من مجلد آخر؛ يجب أن تكون داخل مجلد المشروع. أنشئ حساب المدير عند أول تشغيل واحفظ كلمة مروره.
-
-## إعداد حساب المشترك
-
-أضف المشترك أولاً من لوحة الإدارة: الاسم، رقم الهوية أو الإقامة، رقم الجوال السعودي، الباقة، وتاريخ البداية. يحسب النظام تاريخ الانتهاء وفق مدة الباقة، ويمكن تعديله يدوياً. بعدها يدخل المشترك من `/account` بهويته والجوال المسجّل؛ يرسل له النظام رمز تحقق إلى واتساب بعد إعداد Meta. تغيير رقم الجوال يمسح التوثيق وموافقات الرسائل القديمة، وعلى المشترك توثيق الرقم الجديد.
-
-تُحفظ الموافقة على رسائل الاشتراك والعروض كل واحدة على حدة بعد التحقق. رسائل العروض لا تُرسل إلا إلى من اختارها صراحةً. تنبيهات انتهاء الاشتراك تظهر داخل الحساب، كما تُضاف إلى قائمة الإرسال الآمن عبر واتساب إذا كان العضو قد وثّق رقمه ووافق على رسائل الحساب.
-
-## تفعيل WhatsApp Cloud API
-
-يلزم أن ينشئ النادي حساب WhatsApp Business Platform في Meta، يضيف رقم الإرسال، ويصدر رمز وصول مناسباً للخادم. أنشئ قوالب معتمدة بالأسماء واللغات المسجلة في `.env`:
-
-- `fc_login_code`: قالب من نوع Authentication لإرسال رمز الدخول، مع زر رمز OTP ونسختين عربيتين وإنجليزيتين معتمدتين. نص رمز الدخول في القالب ثابت من Meta؛ الخادم يمرر الرمز في نص الرسالة وزر OTP.
-- `fc_member_update`: قالب من نوع Utility بمتغيري الاسم والرسالة: `مرحباً {{1}}، {{2}}`، وترجمة إنجليزية معتمدة.
-- `fc_club_news`: قالب من نوع Marketing بمتغيري الاسم والرسالة، وترجمة إنجليزية معتمدة.
-
-انسخ `.env.example` إلى `.env` وأدخل `WHATSAPP_PHONE_NUMBER_ID` و`WHATSAPP_ACCESS_TOKEN` وأسماء القوالب والنسخ اللغوية بعد اعتمادها. لا تضع رمز الوصول في كود الواجهة أو ترسله في المحادثات. أعد تشغيل الخادم بعد حفظه. صفحة التنبيهات في لوحة الإدارة تعرض هل إعدادات كل نوع جاهزة. يعتمد الإرسال على موافقة المستلم وعلى قواعد Meta؛ القوالب والرموز الحقيقية غير مرفقة بالمشروع. التفاصيل في [Meta WhatsApp Cloud API](https://www.postman.com/meta/whatsapp-business-platform/overview) و[سياسة رسائل WhatsApp للأعمال](https://business.whatsapp.com/policy/preview?lang=id_ID).
-
-## الاشتراكات والجدول
-
-أُدخلت الأسعار الظاهرة في صورة النادي: باقات رياضة واحدة (2199 / 3710 / 5999 ريال)، رياضتان (3450 / 5790 / 8999 ريال)، وVIP (4900 / 7900 / 12999 ريال) لمدد 3 أشهر و6 أشهر وسنة. تحتوي VIP على دخول جميع الحصص وجلستين تدريبيتين شخصيتين شهرياً. كل الأسعار والمدد قابلة للتعديل من الإدارة.
-
-يحتوي الجدول على مواعيد الصور خلال السبت إلى الخميس، ويبدأ عرضه من تاريخ تجهيز الموقع لسنة قادمة. يمكن إضافة الحصص أو تعديلها أو نسخ نمط شهر إلى شهر آخر من لوحة الإدارة. أُضيفت الجوجيتسو والمصارعة إلى الرياضات المعروضة؛ لم تُحدد لهما مواعيد في صور الجدول.
-
-## النسخ الاحتياطي
-
-قاعدة البيانات والصور في مجلد `data/`. لا تحذف هذا المجلد عند تحديث الملفات أو إعادة تشغيل الموقع. أنشئ نسخة احتياطية بالأمر:
-
-```bash
-npm run backup
+```sh
+npm ci
+node scripts/setup-local.mjs
+docker compose up -d
+npm run build -w @fightclub/shared
+npm run db:migrate
+npm run db:seed
+npm run dev:api
 ```
 
-وانقل ملفات النسخ الاحتياطية إلى مكان خارج الخادم بانتظام.
+In another terminal:
 
-## النشر على الإنترنت
+```sh
+npm run dev:web
+```
 
-هذا المشروع مجهز للنشر كخدمة Docker دائمة. على VPS يدعم Docker وDocker Compose:
+Open http://127.0.0.1:3100/ar or /en. Admin: /ar/admin. Member portal: /ar/account. The generated private `.env` contains the local admin credentials. No credentials or member fixtures are committed. Seeding preserves existing catalogue edits and creates no classes or members. Create a member in Admin before trying member login.
 
-1. انسخ ملفات المشروع إلى الخادم، وثبّت Docker وDocker Compose.
-2. أنشئ `.env` بكلمة مرور قوية للمدير، وسر توقيع JWT طويل، وبيانات WhatsApp عند اعتماد الحساب والقوالب. لا ترفع `.env` إلى Git أو ترسله للآخرين.
-3. اربط النطاق بعنوان الخادم، وضع HTTPS من خلال وكيل مثل Nginx أو من خلال خدمة الاستضافة.
-4. شغّل من مجلد المشروع: `docker compose up -d --build`.
-5. تحقق من `https://نطاقك/api/health` ثم افتح الموقع ونفّذ نسخة احتياطية تجريبية.
+Local setup explicitly enables `LOCAL_OTP_PREVIEW=true`. The verification screen shows the generated code in a clearly labeled local testing panel; no SMS is sent. The same expiry, attempt limits and single-use verification apply. Both development servers bind to loopback. Preview mode rejects production, nonlocal origins and trusted proxy configuration, and cannot verify a preview challenge after it is disabled. Sessions issued by preview also require the active local gate on every request. Preview sign-in does not establish real mobile verification or enable automated messages. Set `LOCAL_OTP_PREVIEW=false` when adding real Taqnyat credentials, then restart the API. Keep the flag false or absent in production.
 
-تُحفظ قاعدة البيانات والصور في وحدة Docker الدائمة `fightclub_data` عند إعادة تشغيل الحاوية. يجب أن تحفظ منصة الاستضافة البيانات على قرص دائم وتدعم SQLite. إذا نقلت الموقع إلى حاوية جديدة من دون هذه الوحدة، لن تنتقل بيانات المشتركين.
+Run `npm run build -w @fightclub/api` and `npm run worker -w @fightclub/api` in a separate terminal to process durable notifications. Local media uses a private filesystem directory; production requires S3. Member login uses SMS through Taqnyat when preview mode is disabled. Set `SMS_PROVIDER=taqnyat`, `TAQNYAT_BEARER_TOKEN` and `TAQNYAT_SENDER` in the private environment, activate the sender and authorize the server IP in the provider account. Enrollment requests and club messages continue to use WhatsApp. Automated WhatsApp messages need official Meta credentials and approved templates. Preview codes are real expiring challenges and are never reported as SMS deliveries.
 
-تشغيله محلياً يتيح الموقع لجهازك فقط. ليبقى متاحاً للناس دون تشغيل جهازك، يجب رفعه إلى VPS أو منصة حاويات، وربط النطاق وإعداد DNS وHTTPS. لا يحتوي المشروع على حساب استضافة أو نطاق أو بيانات Meta الخاصة بالنادي، لذلك الملفات جاهزة للنشر لكن لم يتم رفع الموقع إلى الإنترنت أو إرسال واتساب فعلي بعد.
+## Structure
 
-## الشعارات
+- `apps/web`: public website, Admin and member screens, bilingual layout, interaction motion.
+- `apps/api`: identity, membership ledger, catalogue/CMS, schedules, media, communications and separate worker.
+- `packages/shared`: typed browser/API contracts and the supplied public catalogue.
+- `assets/source`: original brochure and trainer biography, asset inventory.
+- `infra`: production containers and HTTPS reverse proxy.
+- `scripts`: private local setup, encrypted backups and isolated restoration check.
 
-- `public/assets/logo-main.jpg`: الشعار الأساسي الذي أرسله النادي.
-- `public/assets/logo-interior.png` و`logo-inner.png`: نسخ الشعار المستخدم داخل واجهة الموقع.
+Public prices and contact details come from the original repository. Existing SQLite data is not silently imported. The historical calendar is not assumed to represent the club's current schedule.
+
+## Verify
+
+```sh
+npm run typecheck
+npm run lint
+npm test
+npm run test:integration -w @fightclub/api
+npm run build
+```
+
+Integration checks require the local PostgreSQL database. Operations checks use an isolated schema. Tests substitute external SMS/WhatsApp network boundaries; verification does not send real messages.
+
+See [architecture](docs/ARCHITECTURE.md), [API contracts](docs/API-CONTRACT.md), [operations and deployment](docs/OPERATIONS.md), [legacy audit](docs/LEGACY-AUDIT.md), and [handover evidence](docs/VERIFICATION.md).

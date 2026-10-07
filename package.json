@@ -1,27 +1,31 @@
 {
-  "name": "fight-club-site",
-  "version": "1.0.0",
-  "description": "Fight Club gym website with admin CMS, member accounts and class schedule",
-  "main": "server.js",
+  "name": "fightclub-platform",
+  "version": "2.0.0",
   "private": true,
-  "engines": {
-    "node": ">=22"
-  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "create-admin": "node scripts/create-admin.js",
-    "backup": "node scripts/backup.js"
+    "build": "npm run build -w @fightclub/shared && npm run build -w @fightclub/api && npm run build -w @fightclub/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps packages --max-warnings 0",
+    "test": "npm run test -w @fightclub/api",
+    "dev:web": "npm run dev -w @fightclub/web",
+    "dev:api": "npm run dev -w @fightclub/api",
+    "db:migrate": "npm run db:migrate -w @fightclub/api",
+    "db:seed": "npm run db:seed -w @fightclub/api",
+    "format": "prettier --write apps packages docs infra *.json *.mjs *.yaml",
+    "format:check": "prettier --check apps packages docs infra *.json *.mjs *.yaml"
   },
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.11.1",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^18.0.5",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.7.0",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "multer": "^2.4.0"
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "eslint": "^9.39.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  },
+  "engines": {
+    "node": ">=22.16"
   }
 }

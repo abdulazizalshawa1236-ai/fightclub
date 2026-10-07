@@ -1,0 +1,35 @@
+name: Verify platform
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: fightclub
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: fightclub
+        ports: [56432:5432]
+        options: --health-cmd="pg_isready -U fightclub" --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      DATABASE_URL: postgresql://fightclub:isolated-ci-only@127.0.0.1:56432/fightclub
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: node scripts/setup-local.mjs
+      - run: npm run build -w @fightclub/shared
+      - run: npm run db:migrate && npm run db:seed
+      - run: npm run typecheck && npm run lint && npm test
+      - run: npm run test:integration -w @fightclub/api
+      - run: npm run build
