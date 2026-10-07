@@ -172,6 +172,43 @@ async function main(): Promise<void> {
     process.stdout.write(
       'PASS schedule weekday occurrence, fifth week skip, conflict rollback and retry idempotency\n',
     );
+    // The supplied girls' boxing session occupies both halls on October 7.
+    // Both English and source Arabic room labels must block partial hall bookings.
+    for (const room of ['Hall A', 'Hall B', ' hall  a ', 'صالة B'])
+      await assert.rejects(
+        schedule.save(
+          {
+            ...classData,
+            date: '2026-10-07',
+            startTime: '16:15',
+            endTime: '16:45',
+            room,
+          },
+          actor,
+        ),
+        /room or coach already has a class/,
+      );
+    // Single halls can run independently; a combined booking intersects either.
+    for (const room of ['Hall A', 'Hall B'])
+      await schedule.save({ ...classData, date: '2026-05-04', room }, actor);
+    await assert.rejects(
+      schedule.save({ ...classData, date: '2026-05-04', room: 'Hall A + Hall B' }, actor),
+      /room or coach already has a class/,
+    );
+    await schedule.save({ ...classData, date: '2026-06-01', room: 'Hall A + Hall B' }, actor);
+    const compositeCopy = {
+      from: '2026-05',
+      to: '2026-06',
+      preview: true,
+      idempotencyKey: randomUUID(),
+    };
+    assert.equal((await schedule.copy(compositeCopy, actor)).conflicts.length, 2);
+    await assert.rejects(
+      schedule.copy({ ...compositeCopy, preview: false }, actor),
+      /Resolve room or coach conflicts/,
+    );
+    assert.equal((await schedule.list('2026-06')).classes.length, 1);
+    process.stdout.write('PASS supplied combined-hall save and copy collision protection\n');
     const plan = (
       await db.query<{ id: string }>(
         "SELECT id FROM plans WHERE archived_at IS NULL AND (data->>'visible')::boolean ORDER BY id LIMIT 1",

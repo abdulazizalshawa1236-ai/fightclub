@@ -61,6 +61,19 @@ export const settingsSchema = z
     mapUrl: optionalPublicUrl,
     instagram: optionalPublicUrl,
     warningDays: z.number().int().min(0).max(90),
+    metaDescription: localized.optional(),
+    currencyLabel: localized.optional(),
+    countryCode: z
+      .string()
+      .regex(/^\d{1,4}$/)
+      .optional(),
+    marquee: localized.optional(),
+    weekStart: z.number().int().min(0).max(6).optional(),
+    footerText: localized.optional(),
+    socialLinks: z
+      .object({ x: optionalPublicUrl, snapchat: optionalPublicUrl, tiktok: optionalPublicUrl })
+      .strict()
+      .optional(),
     notificationText: z
       .object({ expiring: title, expired: title, renewed: title })
       .strict()
@@ -79,6 +92,8 @@ export const planInputSchema = z
     benefits: z.array(title).max(30),
     featured: z.boolean(),
     visible: z.boolean(),
+    badge: localized.optional(),
+    position: z.number().int().nonnegative().max(10000).optional(),
   })
   .strict();
 export const planSchema = planInputSchema.extend({ id: catalogueIdSchema });

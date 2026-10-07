@@ -22,7 +22,7 @@ In another terminal:
 npm run dev:web
 ```
 
-Open http://127.0.0.1:3100/ar or /en. Admin: /ar/admin. Member portal: /ar/account. The generated private `.env` contains the local admin credentials. No credentials or member fixtures are committed. Seeding preserves existing catalogue edits and creates no classes or members. Create a member in Admin before trying member login.
+Open http://127.0.0.1:3100/ar or /en. Admin: /ar/admin. Member portal: /ar/account. The generated private `.env` contains the local admin credentials. No credentials or member fixtures are committed. Migrations restore the supplied timetable. Seeding preserves existing catalogue edits and creates no members. Create a member in Admin before trying member login.
 
 Local setup explicitly enables `LOCAL_OTP_PREVIEW=true`. The verification screen shows the generated code in a clearly labeled local testing panel; no SMS is sent. The same expiry, attempt limits and single-use verification apply. Both development servers bind to loopback. Preview mode rejects production, nonlocal origins and trusted proxy configuration, and cannot verify a preview challenge after it is disabled. Sessions issued by preview also require the active local gate on every request. Preview sign-in does not establish real mobile verification or enable automated messages. Set `LOCAL_OTP_PREVIEW=false` when adding real Taqnyat credentials, then restart the API. Keep the flag false or absent in production.
 
@@ -37,7 +37,9 @@ Run `npm run build -w @fightclub/api` and `npm run worker -w @fightclub/api` in 
 - `infra`: production containers and HTTPS reverse proxy.
 - `scripts`: private local setup, encrypted backups and isolated restoration check.
 
-Public prices and contact details come from the original repository. Existing SQLite data is not silently imported. The historical calendar is not assumed to represent the club's current schedule.
+Public prices, contact details, and the supplied timetable come from the original repository. Migration 006 preserves all 1,565 supplied classes from October 2026 through September 2027, including bilingual titles, age groups, and halls. Fridays have no classes. Coaches remain unassigned where the original timetable left them blank. Staff can edit sessions and copy schedules to later months in Admin.
+
+Migrations 007 and 008 retain every original database record and the newer source content snapshot in private PostgreSQL import tables with source identifiers and checksum manifests. Plans, reminder wording and site settings are mapped into the active model. The eight original saved sections and complete coach/program objects are retained alongside the current rebuilt content. The sole excluded field is the admin password hash committed publicly in the original repo; the new secure admin credentials remain active. Empty source member, offer and message tables stay empty.
 
 ## Verify
 

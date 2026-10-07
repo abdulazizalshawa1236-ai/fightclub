@@ -23,6 +23,43 @@ export const seedSite: PublicSite = {
     mapUrl: '',
     instagram: 'https://www.instagram.com/fightclubksa/',
     warningDays: 3,
+    metaDescription: {
+      ar: 'فايت كلوب — نادي ملاكمة ومواي تاي وجوجيتسو وMMA. اشترك الآن وتابع اشتراكك وجدول الحصص أونلاين.',
+      en: 'Fight Club — boxing, Muay Thai, Brazilian Jiu-Jitsu and MMA. Join today and follow your membership and class schedule online.',
+    },
+    currencyLabel: {
+      ar: 'ر.س',
+      en: 'SAR',
+    },
+    countryCode: '966',
+    marquee: {
+      ar: 'ملاكمة,مواي تاي,تايكوندو,جوجيتسو,مصارعة',
+      en: 'BOXING,MUAY THAI,TAEKWONDO,JIU-JITSU,WRESTLING',
+    },
+    weekStart: 6,
+    footerText: {
+      ar: 'جميع الحقوق محفوظة',
+      en: 'All rights reserved',
+    },
+    socialLinks: {
+      x: '',
+      snapchat: '',
+      tiktok: '',
+    },
+    notificationText: {
+      expiring: {
+        ar: 'مرحباً {name}، ينتهي اشتراكك في {club} بتاريخ {date}. جدّد قبل الانتهاء حتى لا ينقطع تدريبك.',
+        en: 'Hello {name}, your {club} membership expires on {date}. Renew before then to keep training.',
+      },
+      expired: {
+        ar: 'مرحباً {name}، انتهى اشتراكك في {club} بتاريخ {date}. جدّد اشتراكك للاستمرار في التدريب.',
+        en: 'Hello {name}, your {club} membership expired on {date}. Renew to keep training.',
+      },
+      renewed: {
+        ar: 'تم تجديد اشتراكك في {club} حتى {date}. نتمنى لك تدريباً موفقاً.',
+        en: 'Your {club} membership has been renewed through {date}. Enjoy your training.',
+      },
+    },
   },
   plans: [
     {
@@ -48,6 +85,11 @@ export const seedSite: PublicSite = {
       ],
       featured: true,
       visible: true,
+      badge: {
+        ar: 'الأكثر طلباً',
+        en: 'Most popular',
+      },
+      position: 0,
     },
     {
       id: 'plan-6',
@@ -72,6 +114,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: '',
+        en: '',
+      },
+      position: 1,
     },
     {
       id: 'plan-7',
@@ -96,6 +143,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: '',
+        en: '',
+      },
+      position: 2,
     },
     {
       id: 'plan-8',
@@ -120,6 +172,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: '',
+        en: '',
+      },
+      position: 3,
     },
     {
       id: 'plan-9',
@@ -144,6 +201,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: '',
+        en: '',
+      },
+      position: 4,
     },
     {
       id: 'plan-10',
@@ -168,6 +230,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: '',
+        en: '',
+      },
+      position: 5,
     },
     {
       id: 'plan-11',
@@ -196,6 +263,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: 'VIP',
+        en: 'VIP',
+      },
+      position: 6,
     },
     {
       id: 'plan-12',
@@ -224,6 +296,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: 'VIP',
+        en: 'VIP',
+      },
+      position: 7,
     },
     {
       id: 'plan-13',
@@ -252,6 +329,11 @@ export const seedSite: PublicSite = {
       ],
       featured: false,
       visible: true,
+      badge: {
+        ar: 'VIP',
+        en: 'VIP',
+      },
+      position: 8,
     },
   ],
   sports: [

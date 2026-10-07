@@ -26,6 +26,7 @@ export function ClassCalendar({
   const [retry, setRetry] = useState(0);
   const [schedule, setSchedule] = useState<ScheduleState>({ status: 'loading', classes: [] });
   const ar = locale === 'ar';
+  const weekStart = site.settings.weekStart ?? 0;
   const reduced = useReducedMotion();
   const selectionId = useId();
   useEffect(() => {
@@ -89,7 +90,7 @@ export function ClassCalendar({
               {new Intl.DateTimeFormat(ar ? 'ar-SA' : 'en-GB', {
                 weekday: 'short',
                 timeZone: 'UTC',
-              }).format(new Date(Date.UTC(2026, 0, 4 + day)))}
+              }).format(new Date(Date.UTC(2026, 0, 4 + weekStart + day)))}
             </span>
           ))}
         </div>
@@ -97,7 +98,7 @@ export function ClassCalendar({
           className="fc-days"
           onKeyDown={(event) => selectChoice(event, monthDates, selected, setSelected, ar, 7)}
         >
-          {Array.from({ length: first.getUTCDay() }, (_, index) => (
+          {Array.from({ length: (first.getUTCDay() - weekStart + 7) % 7 }, (_, index) => (
             <span key={`blank-${index}`} />
           ))}
           {Array.from({ length: days }, (_, index) => {

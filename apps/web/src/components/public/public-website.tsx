@@ -638,7 +638,7 @@ export function PublicWebsite({
           <p>
             © {today.slice(0, 4)} {text(site.settings.name, locale)}
           </p>
-          <span>{text(site.settings.tagline, locale)}</span>
+          <span>{text(site.settings.footerText ?? site.settings.tagline, locale)}</span>
           <Link href={`/${locale}/admin`}>{ar ? 'إدارة النادي' : 'Club administration'}</Link>
         </div>
       </footer>

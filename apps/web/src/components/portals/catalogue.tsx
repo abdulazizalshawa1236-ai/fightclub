@@ -434,7 +434,7 @@ export function CataloguePanel({
           ) : kind === 'offers' ? (
             <OfferEditor
               key={editing}
-              record={record && 'badge' in record ? record : undefined}
+              record={record && 'startsOn' in record ? record : undefined}
               locale={locale}
               onSave={saved}
               onCancel={() => setEditing(null)}

@@ -81,9 +81,15 @@ export function PlanSelector({ site, locale }: { site: PublicSite; locale: Local
                           ? 'One sport'
                           : `${plan.sportLimit} sports`}
                   </span>
-                  {plan.featured && (
-                    <span className="fc-tag">{ar ? 'باقة مميزة' : 'Featured'}</span>
-                  )}
+                  {(plan.badge && text(plan.badge, locale)) || plan.featured ? (
+                    <span className="fc-tag">
+                      {plan.badge && text(plan.badge, locale)
+                        ? text(plan.badge, locale)
+                        : ar
+                          ? 'باقة مميزة'
+                          : 'Featured'}
+                    </span>
+                  ) : null}
                 </div>
                 <h3>{text(plan.name, locale)}</h3>
                 <div className="fc-price">
@@ -91,7 +97,13 @@ export function PlanSelector({ site, locale }: { site: PublicSite; locale: Local
                     <del>{new Intl.NumberFormat(locale).format(plan.oldPrice)}</del>
                   )}
                   <strong>{new Intl.NumberFormat(locale).format(plan.price)}</strong>
-                  <span>{ar && plan.currency === 'SAR' ? 'ر.س' : plan.currency}</span>
+                  <span>
+                    {plan.currency === 'SAR' && site.settings.currencyLabel
+                      ? text(site.settings.currencyLabel, locale)
+                      : ar && plan.currency === 'SAR'
+                        ? 'ر.س'
+                        : plan.currency}
+                  </span>
                 </div>
                 <p className="fc-plan-duration">
                   {text(plan.durationLabel, locale).replace(/^\//, '')}{' '}

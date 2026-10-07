@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { MessageDelivery, Locale, ClubSettings } from '@fightclub/shared';
-import { text } from '@fightclub/shared';
+import { text, renderMembershipReminder } from '@fightclub/shared';
 import { SmsService } from '../sms/sms.service';
 import { DatabaseService } from '../core/database';
 import { parse, uuidSchema } from '../core/validation';
@@ -30,6 +30,7 @@ interface Pending {
   attempts: number;
 }
 interface Recipient {
+  full_name: string;
   phone: string;
   identity_version: number;
   preferred_language: Locale;
@@ -281,7 +282,17 @@ export class CommunicationsService {
         params = [
           text(membership.plan_snapshot.name, recipient.preferred_language),
           membership.end_date,
-          text(copy || fallback[pending.event] || { ar: '', en: '' }, recipient.preferred_language),
+          renderMembershipReminder(
+            text(
+              copy || fallback[pending.event] || { ar: '', en: '' },
+              recipient.preferred_language,
+            ),
+            {
+              name: recipient.full_name,
+              club: settings ? text(settings.name, recipient.preferred_language) : '',
+              date: membership.end_date,
+            },
+          ),
         ];
       } else {
         const message = (
