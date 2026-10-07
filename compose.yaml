@@ -1,24 +1,16 @@
 services:
-  fightclub:
-    build: .
-    container_name: fightclub
-    restart: unless-stopped
-    env_file:
-      - .env
+  postgres:
+    image: postgres:17-alpine
     environment:
-      PORT: 3000
-      NODE_ENV: production
-      DATA_DIR: /data
-    ports:
-      - "127.0.0.1:3000:3000"
-    volumes:
-      - fightclub_data:/data
+      POSTGRES_USER: fightclub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: fightclub
+    ports: ['127.0.0.1:56432:5432']
+    volumes: ['club_database:/var/lib/postgresql/data']
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-
+      test: ['CMD-SHELL', 'pg_isready -U fightclub']
+      interval: 5s
+      timeout: 3s
+      retries: 20
 volumes:
-  fightclub_data:
+  club_database:

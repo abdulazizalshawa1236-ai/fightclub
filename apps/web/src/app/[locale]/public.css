@@ -1,0 +1,1531 @@
+.fc-website {
+  --fc-red: #e8343a;
+  --fc-black: #111;
+  --fc-silver: #dddeda;
+  --fc-paper: #f6f6f4;
+  overflow: clip;
+  background: var(--fc-paper);
+}
+.fc-container {
+  width: min(1280px, calc(100% - 104px));
+  margin-inline: auto;
+}
+.fc-website h1,
+.fc-website h2,
+.fc-website h3 {
+  font-family: var(--font-display);
+  line-height: 1.05;
+  font-weight: 800;
+}
+.fc-website[dir='rtl'] h1 {
+  font-family: var(--font-body);
+}
+[dir='rtl'] .fc-website h1,
+[dir='rtl'] .fc-website h2,
+[dir='rtl'] .fc-website h3 {
+  font-family: var(--font-body);
+  line-height: 1.25;
+}
+.fc-skip {
+  position: fixed;
+  top: 10px;
+  inset-inline-start: 15px;
+  transform: translateY(-200%);
+  background: #fff;
+  padding: 12px;
+  z-index: 100;
+}
+.fc-skip:focus {
+  transform: translateY(0);
+}
+.fc-nav {
+  position: sticky;
+  top: 0;
+  background: #111;
+  color: #fff;
+  border-bottom: 1px solid #383838;
+  z-index: 50;
+}
+.fc-nav-inner {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  gap: 35px;
+}
+.fc-nav-logo {
+  flex: 0 0 92px;
+}
+.fc-nav-logo img {
+  width: 92px;
+  height: 65px;
+  object-fit: contain;
+}
+.fc-nav-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 26px;
+}
+.fc-nav-menu a {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.fc-nav-menu a:hover {
+  color: var(--fc-red);
+}
+.fc-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.fc-language {
+  font-size: 14px;
+  border-inline-end: 1px solid #555;
+  padding-inline-end: 22px;
+}
+.fc-nav-member {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.fc-menu-button {
+  display: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 7px;
+}
+.fc-hero {
+  background: var(--fc-black);
+  color: #fff;
+  position: relative;
+}
+.fc-hero-body {
+  min-height: 690px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 22px;
+  padding-block: 90px 65px;
+}
+.fc-location {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #b3b3b3;
+  font-size: 15px;
+}
+.fc-hero-copy {
+  position: relative;
+  z-index: 2;
+}
+.fc-hero-copy h1 {
+  font-size: clamp(54px, 6.7vw, 98px);
+  letter-spacing: -0.025em;
+  max-width: 700px;
+  margin-block: 24px 28px;
+}
+.fc-hero-copy > p:not(.fc-location) {
+  font-size: 19px;
+  line-height: 1.7;
+  max-width: 520px;
+  color: #bbb;
+}
+.fc-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 33px;
+}
+.fc-button {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  background: var(--fc-red);
+  border: 1px solid var(--fc-red);
+  padding: 16px 22px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  min-height: 55px;
+  border-radius: 3px;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.fc-button:hover {
+  background: #c91e25;
+  border-color: #c91e25;
+}
+.fc-button-outline {
+  background: transparent;
+  border-color: #666;
+}
+.fc-button-outline:hover {
+  background: #292929;
+  border-color: #999;
+}
+.fc-button-light {
+  background: transparent;
+  color: #111;
+  border-color: #999;
+}
+.fc-button-light:hover {
+  background: #ddd;
+  border-color: #777;
+}
+.fc-button-wide {
+  width: 100%;
+}
+.fc-member-link {
+  margin-top: 23px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 14px;
+  width: fit-content;
+}
+.fc-member-link:hover {
+  color: #fff;
+}
+.fc-hero-brand {
+  position: relative;
+  aspect-ratio: 1;
+  align-self: center;
+}
+.fc-ring-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: #ab2025;
+  opacity: 0.7;
+}
+.fc-hero-logo {
+  position: absolute;
+  inset: 23% 9% 19%;
+  transform: rotate(5deg);
+}
+.fc-hero-logo img {
+  object-fit: contain;
+}
+.fc-hero-caption {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  text-align: center;
+  color: #777;
+  font-size: 15px;
+}
+.fc-sport-ticker {
+  border-block: 1px solid #383838;
+  background: #1b1b1b;
+  overflow: hidden;
+}
+.fc-sport-ticker > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 23px 30px;
+  white-space: nowrap;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.fc-sport-ticker a {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+}
+.fc-sport-ticker a span {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: var(--fc-red);
+}
+.fc-section {
+  padding-block: 105px;
+  scroll-margin-top: 90px;
+}
+.fc-section-heading {
+  margin-bottom: 44px;
+}
+.fc-section-heading h2,
+.fc-about h2 {
+  font-size: clamp(38px, 4.5vw, 68px);
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+}
+.fc-section-heading p {
+  font-size: 19px;
+  color: #666;
+  line-height: 1.7;
+  max-width: 730px;
+  margin-bottom: 0;
+}
+.fc-about {
+  border-bottom: 1px solid #d6d6d3;
+}
+.fc-about-layout {
+  display: grid;
+  grid-template-columns: 0.65fr 1.35fr;
+  gap: 70px;
+}
+.fc-about-layout > div > p {
+  white-space: pre-line;
+  font-size: 22px;
+  line-height: 1.8;
+  margin: 0;
+}
+.fc-about h2 {
+  max-width: 380px;
+}
+.fc-programs {
+  background: #eeefec;
+}
+.fc-program-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 70px;
+}
+.fc-program-options {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #bbb;
+}
+.fc-program-options button {
+  border: 0;
+  border-bottom: 1px solid #bbb;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 19px 4px;
+  text-align: start;
+  font-family: var(--font-display);
+  font-size: 31px;
+  font-weight: 700;
+  gap: 15px;
+}
+.fc-program-options button[aria-pressed='true'] {
+  color: var(--fc-red);
+}
+.fc-program-options button svg {
+  transition: transform 0.2s;
+}
+.fc-program-options button[aria-pressed='true'] svg {
+  transform: rotate(45deg);
+}
+.fc-program-detail {
+  background: #111;
+  color: white;
+  padding: 36px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.fc-program-detail h3 {
+  font-size: 42px;
+  margin-bottom: 17px;
+}
+.fc-program-detail p {
+  font-size: 19px;
+  line-height: 1.7;
+  color: #aaa;
+  max-width: 450px;
+}
+.fc-mat {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 250px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.fc-mat > div {
+  position: absolute;
+  width: 165px;
+  height: 165px;
+  border: 1px solid #df3439;
+  transform: rotate(45deg);
+}
+.fc-mat > div:nth-child(2) {
+  width: 212px;
+  height: 212px;
+  border-color: #454545;
+}
+.fc-mat span {
+  font-family: var(--font-display);
+  font-size: 70px;
+  font-weight: 900;
+  color: #b8b8b8;
+}
+.fc-text-link {
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  color: var(--fc-red);
+  font-weight: 700;
+  line-height: 1.6;
+}
+.fc-plans .fc-section-heading {
+  margin-bottom: 30px;
+}
+.fc-duration {
+  display: flex;
+  width: fit-content;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 35px;
+  padding: 5px;
+  gap: 5px;
+}
+.fc-duration button {
+  border: 0;
+  background: transparent;
+  border-radius: 2px;
+  padding: 13px 24px;
+  min-width: 115px;
+  font-weight: 700;
+  color: #666;
+}
+.fc-duration button[aria-pressed='true'] {
+  background: #111;
+  color: #fff;
+}
+.fc-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 23px;
+}
+.fc-plan {
+  border: 1px solid #c9c9c7;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background: #fff;
+  min-width: 0;
+  position: relative;
+}
+.fc-plan-featured {
+  border-color: var(--fc-red);
+  border-top-width: 4px;
+  padding-top: 27px;
+}
+.fc-plan-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 29px;
+}
+.fc-tag {
+  background: #fbe7e8;
+  color: #b5262c;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  width: fit-content;
+}
+.fc-plan h3 {
+  font-size: 28px;
+  margin-bottom: 24px;
+}
+.fc-price {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.fc-price strong {
+  font-family: var(--font-display);
+  font-size: 65px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.fc-price del {
+  width: 100%;
+  color: #888;
+  font-size: 20px;
+}
+.fc-price > span {
+  font-size: 19px;
+  font-weight: 700;
+}
+.fc-plan-duration {
+  font-size: 15px;
+  color: #777;
+  margin: 7px 0 26px;
+}
+.fc-plan-duration span {
+  white-space: nowrap;
+}
+.fc-plan ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 34px;
+  flex: 1;
+}
+.fc-plan li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 17px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.fc-plan li svg {
+  flex-shrink: 0;
+  color: var(--fc-red);
+  margin-top: 5px;
+}
+.fc-plan-note {
+  margin-top: 23px;
+  color: #777;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 900px;
+}
+.fc-offers {
+  padding-block: 60px;
+  background: #e9eae7;
+}
+.fc-offers .fc-section-heading {
+  margin-bottom: 25px;
+}
+.fc-offers .fc-section-heading h2 {
+  font-size: 38px;
+}
+.fc-offers .fc-section-heading p {
+  display: none;
+}
+.fc-empty {
+  line-height: 1.8;
+  color: #666;
+  font-size: 17px;
+}
+.fc-offers .fc-empty {
+  margin-bottom: 0;
+}
+.fc-offer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+.fc-offer-grid article {
+  background: #fff;
+  padding: 30px;
+}
+.fc-offer-grid h3 {
+  font-size: 32px;
+  margin-top: 20px;
+}
+.fc-offer-grid p {
+  line-height: 1.7;
+  color: #666;
+}
+.fc-offer-grid details {
+  margin-bottom: 20px;
+}
+.fc-schedule {
+  background: #f6f6f4;
+}
+.fc-calendar-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: start;
+}
+.fc-calendar {
+  padding: 30px;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+.fc-calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 10px;
+}
+.fc-calendar-toolbar h3 {
+  font-size: 30px;
+  margin: 0;
+}
+.fc-calendar-toolbar > div {
+  display: flex;
+  gap: 9px;
+}
+.fc-calendar-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 3px;
+}
+.fc-weekdays,
+.fc-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.fc-weekdays {
+  text-align: center;
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 10px;
+}
+.fc-days button {
+  border: 1px solid transparent;
+  background: #f6f6f4;
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 3px;
+  color: #333;
+}
+.fc-days button:hover {
+  border-color: #999;
+}
+.fc-days button[aria-pressed='true'] {
+  background: #111;
+  color: #fff;
+}
+.fc-days button.fc-today {
+  border-color: var(--fc-red);
+}
+.fc-days button i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--fc-red);
+  position: absolute;
+  bottom: 9px;
+}
+.fc-calendar-key {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: #777;
+  margin: 22px 0 0;
+  line-height: 1.7;
+}
+.fc-calendar-key i {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  background: var(--fc-red);
+  border-radius: 50%;
+}
+.fc-day-detail {
+  border-top: 3px solid var(--fc-red);
+  padding-top: 24px;
+}
+.fc-day-detail h3 {
+  font-size: 29px;
+  margin-bottom: 25px;
+}
+.fc-class {
+  padding-block: 20px;
+  border-bottom: 1px solid #ddd;
+}
+.fc-class-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fc-red);
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.fc-class h4 {
+  font-size: 23px;
+  margin-bottom: 10px;
+}
+.fc-class p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #777;
+  margin-bottom: 8px;
+}
+.fc-class-cancelled h4 {
+  text-decoration: line-through;
+}
+.fc-class-cancelled > strong {
+  color: var(--fc-red);
+  font-size: 14px;
+}
+.fc-coaches {
+  background: #111;
+  color: #fff;
+}
+.fc-coaches .fc-section-heading p {
+  color: #999;
+}
+.fc-coach-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 36px 26px;
+}
+.fc-coach-image {
+  position: relative;
+  aspect-ratio: 1.25;
+  background: #292929;
+  border-bottom: 3px solid #e8343a;
+  overflow: hidden;
+}
+.fc-coach-image img {
+  object-fit: cover;
+  object-position: center 30%;
+  filter: grayscale(1);
+  transition: filter 0.3s;
+}
+.fc-coach:hover .fc-coach-image img {
+  filter: grayscale(0);
+}
+.fc-coach h3 {
+  font-size: 26px;
+  margin: 24px 0 12px;
+}
+.fc-coach p {
+  color: #999;
+  line-height: 1.8;
+  font-size: 15px;
+  margin-bottom: 0;
+}
+.fc-corporate {
+  background: #ededeb;
+}
+.fc-corporate-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 36px 70px;
+  margin-bottom: 38px;
+}
+.fc-corporate-items article {
+  border-top: 1px solid #bbb;
+  padding-top: 26px;
+}
+.fc-corporate-items h3 {
+  font-size: 29px;
+  margin-bottom: 14px;
+}
+.fc-corporate-items p {
+  font-size: 18px;
+  color: #666;
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0;
+}
+.fc-faq-layout {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 70px;
+}
+.fc-faq details {
+  border-top: 1px solid #bbb;
+}
+.fc-faq details:last-child {
+  border-bottom: 1px solid #bbb;
+}
+.fc-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  list-style: none;
+  padding: 25px 0;
+  font-size: 21px;
+  font-weight: 700;
+  cursor: pointer;
+  gap: 20px;
+}
+.fc-faq summary::-webkit-details-marker {
+  display: none;
+}
+.fc-faq summary svg {
+  flex-shrink: 0;
+}
+.fc-faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+.fc-faq details p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #666;
+  padding: 0 30px 14px 0;
+  margin-bottom: 0;
+}
+.fc-contact {
+  background: #111;
+  color: #fff;
+}
+.fc-contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+}
+.fc-contact .fc-section-heading p {
+  color: #999;
+}
+.fc-contact-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 27px;
+}
+.fc-contact-details > a,
+.fc-contact-details > p {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 20px;
+  margin: 0;
+  line-height: 1.6;
+}
+.fc-contact-details > a:hover {
+  color: var(--fc-red);
+}
+.fc-contact-details svg {
+  flex-shrink: 0;
+  color: #888;
+}
+.fc-footer {
+  background: #111;
+  color: #777;
+  border-top: 1px solid #333;
+  padding-block: 30px;
+  font-size: 14px;
+}
+.fc-footer > .fc-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.fc-footer p {
+  margin: 0;
+}
+.fc-footer a:hover {
+  color: white;
+}
+.fc-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+.fc-gallery h3 {
+  font-size: 30px;
+  margin-top: 25px;
+}
+.fc-gallery p {
+  line-height: 1.8;
+  color: #666;
+}
+.fc-editorial-item {
+  margin-top: 35px;
+}
+.fc-editorial-item h3 {
+  font-size: 30px;
+  margin-top: 20px;
+}
+.fc-mobile-cta {
+  display: none;
+}
+[dir='rtl'] .fc-hero-copy h1 {
+  font-size: clamp(46px, 5.5vw, 76px);
+  letter-spacing: 0;
+}
+[dir='rtl'] .fc-section-heading h2,
+[dir='rtl'] .fc-about h2 {
+  font-size: clamp(35px, 3.8vw, 52px);
+  letter-spacing: 0;
+}
+[dir='rtl'] .fc-program-options button {
+  font-family: var(--font-body);
+  font-size: 26px;
+}
+[dir='rtl'] .fc-price strong {
+  font-family: var(--font-body);
+  font-size: 52px;
+}
+[dir='rtl'] .fc-plan h3 {
+  font-size: 23px;
+}
+[dir='rtl'] .fc-program-detail h3 {
+  font-size: 34px;
+}
+[dir='rtl'] .fc-coach h3 {
+  font-size: 23px;
+}
+[dir='rtl'] .fc-calendar-toolbar h3,
+[dir='rtl'] .fc-day-detail h3 {
+  font-size: 25px;
+}
+@media (min-width: 1600px) {
+  .fc-hero-body {
+    min-height: 790px;
+  }
+}
+@media (max-width: 1150px) {
+  .fc-container {
+    width: calc(100% - 64px);
+  }
+  .fc-nav-inner {
+    gap: 20px;
+  }
+  .fc-nav-menu {
+    gap: 16px;
+  }
+  .fc-nav-menu a {
+    font-size: 13px;
+  }
+  .fc-nav-member {
+    font-size: 12px;
+  }
+  .fc-nav-actions {
+    gap: 14px;
+  }
+  .fc-language {
+    padding-inline-end: 14px;
+  }
+  .fc-hero-body {
+    min-height: 620px;
+  }
+  .fc-hero-copy h1 {
+    font-size: 70px;
+  }
+  .fc-plan {
+    padding: 25px;
+  }
+  .fc-plan-featured {
+    padding-top: 22px;
+  }
+  .fc-plan-top {
+    font-size: 13px;
+  }
+  .fc-plan .fc-button {
+    font-size: 14px;
+    padding-inline: 12px;
+  }
+  .fc-coach-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .fc-program-layout {
+    gap: 35px;
+  }
+  .fc-about-layout,
+  .fc-faq-layout {
+    gap: 40px;
+  }
+  .fc-contact-details > a,
+  .fc-contact-details > p {
+    font-size: 17px;
+  }
+}
+@media (max-width: 850px) {
+  .fc-nav-inner {
+    min-height: 75px;
+  }
+  .fc-nav-logo {
+    flex-basis: 74px;
+  }
+  .fc-nav-logo img {
+    width: 74px;
+    height: 55px;
+  }
+  .fc-menu-button {
+    display: block;
+  }
+  .fc-nav-actions {
+    margin-inline-start: auto;
+  }
+  .fc-nav-menu {
+    display: none;
+    position: absolute;
+    top: 75px;
+    inset-inline: 0;
+    background: #111;
+    align-items: stretch;
+    gap: 0;
+    padding: 15px 32px 22px;
+    border-bottom: 1px solid #555;
+  }
+  .fc-nav-menu-open {
+    display: flex;
+    flex-direction: column;
+  }
+  .fc-nav-menu a {
+    font-size: 18px;
+    padding: 17px 0;
+    border-bottom: 1px solid #333;
+  }
+  .fc-hero-body {
+    grid-template-columns: 1fr 1fr;
+    min-height: 640px;
+    padding-top: 60px;
+  }
+  .fc-hero-copy h1 {
+    font-size: 61px;
+  }
+  .fc-hero-copy > p:not(.fc-location) {
+    font-size: 17px;
+  }
+  .fc-hero-actions {
+    gap: 10px;
+  }
+  .fc-hero-actions .fc-button {
+    width: 100%;
+    font-size: 15px;
+  }
+  .fc-hero-brand {
+    margin-inline-end: -40px;
+    min-width: 0;
+  }
+  .fc-hero-caption {
+    font-size: 12px;
+  }
+  .fc-sport-ticker > div {
+    justify-content: flex-start;
+  }
+  .fc-section {
+    padding-block: 75px;
+  }
+  .fc-about-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .fc-about h2 {
+    max-width: none;
+    margin: 0;
+  }
+  .fc-about-layout > div > p {
+    font-size: 19px;
+  }
+  .fc-plan-grid {
+    gap: 15px;
+  }
+  .fc-plan {
+    padding: 18px;
+  }
+  .fc-plan-featured {
+    padding-top: 15px;
+  }
+  .fc-plan-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .fc-plan h3 {
+    font-size: 24px;
+  }
+  .fc-price strong {
+    font-size: 49px;
+  }
+  .fc-price > span {
+    font-size: 15px;
+  }
+  .fc-plan li {
+    font-size: 15px;
+  }
+  .fc-plan .fc-button {
+    font-size: 13px;
+    gap: 6px;
+  }
+  .fc-plan .fc-button svg {
+    width: 15px;
+  }
+  .fc-calendar-layout {
+    gap: 25px;
+  }
+  .fc-calendar {
+    padding: 19px;
+  }
+  .fc-calendar-toolbar h3 {
+    font-size: 23px;
+  }
+  .fc-weekdays {
+    font-size: 11px;
+  }
+  .fc-calendar-toolbar button {
+    width: 32px;
+    height: 32px;
+  }
+  .fc-days {
+    gap: 4px;
+  }
+  .fc-days button {
+    font-size: 16px;
+  }
+  .fc-coach-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 35px;
+  }
+  .fc-faq-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .fc-contact-layout {
+    gap: 35px;
+  }
+  .fc-contact-details > a,
+  .fc-contact-details > p {
+    font-size: 16px;
+  }
+  [dir='rtl'] .fc-hero-copy h1 {
+    font-size: 47px;
+  }
+  [dir='rtl'] .fc-plan h3 {
+    font-size: 21px;
+  }
+  [dir='rtl'] .fc-price strong {
+    font-size: 42px;
+  }
+}
+@media (max-width: 600px) {
+  .fc-container {
+    width: calc(100% - 40px);
+  }
+  .fc-nav-inner {
+    min-height: 70px;
+    gap: 14px;
+  }
+  .fc-nav-menu {
+    top: 70px;
+    padding-inline: 20px;
+  }
+  .fc-nav-member {
+    font-size: 12px;
+  }
+  .fc-nav-member svg {
+    display: none;
+  }
+  .fc-language {
+    font-size: 13px;
+    padding-inline-end: 12px;
+  }
+  .fc-nav-actions {
+    gap: 12px;
+  }
+  .fc-nav-logo {
+    flex-basis: 66px;
+  }
+  .fc-nav-logo img {
+    width: 66px;
+    height: 49px;
+  }
+  .fc-hero-body {
+    padding-top: 38px;
+    padding-bottom: 35px;
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: auto;
+  }
+  .fc-hero-copy h1 {
+    font-size: 63px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 400px;
+  }
+  .fc-location {
+    font-size: 12px;
+  }
+  .fc-hero-copy > p:not(.fc-location) {
+    font-size: 16px;
+    max-width: 360px;
+    margin-bottom: 0;
+  }
+  .fc-hero-actions {
+    margin-top: 27px;
+    display: grid;
+    grid-template-columns: 1.13fr 1fr;
+    gap: 8px;
+  }
+  .fc-hero-actions .fc-button {
+    padding: 14px 8px;
+    font-size: 13px;
+    gap: 7px;
+    min-height: 52px;
+  }
+  .fc-hero-actions .fc-button svg {
+    width: 16px;
+  }
+  .fc-member-link {
+    font-size: 13px;
+    margin-top: 19px;
+  }
+  .fc-hero-brand {
+    width: 80%;
+    max-width: 350px;
+    margin: 22px auto -4px;
+    aspect-ratio: 1.15;
+  }
+  .fc-hero-logo {
+    inset: 19% 9% 12%;
+  }
+  .fc-hero-caption {
+    display: none;
+  }
+  .fc-ring-lines {
+    opacity: 0.65;
+  }
+  .fc-sport-ticker > div {
+    gap: 20px;
+    padding: 17px 20px;
+  }
+  .fc-sport-ticker a {
+    font-size: 21px;
+    gap: 20px;
+  }
+  .fc-section {
+    padding-block: 60px;
+    scroll-margin-top: 70px;
+  }
+  .fc-section-heading {
+    margin-bottom: 30px;
+  }
+  .fc-section-heading h2,
+  .fc-about h2 {
+    font-size: 44px;
+    margin-bottom: 16px;
+  }
+  .fc-section-heading p {
+    font-size: 16px;
+  }
+  .fc-about-layout > div > p {
+    font-size: 17px;
+    line-height: 1.9;
+  }
+  .fc-program-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .fc-program-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 20px;
+  }
+  .fc-program-options button {
+    font-size: 23px;
+    padding-block: 17px;
+    gap: 8px;
+  }
+  .fc-program-options button svg {
+    width: 18px;
+  }
+  .fc-program-detail {
+    padding: 25px;
+  }
+  .fc-mat {
+    height: 200px;
+    margin-bottom: 26px;
+  }
+  .fc-mat > div {
+    width: 125px;
+    height: 125px;
+  }
+  .fc-mat > div:nth-child(2) {
+    width: 165px;
+    height: 165px;
+  }
+  .fc-mat span {
+    font-size: 60px;
+  }
+  .fc-program-detail h3 {
+    font-size: 36px;
+  }
+  .fc-program-detail p {
+    font-size: 16px;
+  }
+  .fc-duration {
+    width: 100%;
+    margin-bottom: 23px;
+    gap: 3px;
+  }
+  .fc-duration button {
+    min-width: 0;
+    flex: 1;
+    padding: 12px 7px;
+    font-size: 15px;
+  }
+  .fc-plan-grid {
+    grid-template-columns: 1fr;
+    gap: 19px;
+  }
+  .fc-plan {
+    padding: 28px;
+  }
+  .fc-plan-featured {
+    padding-top: 25px;
+  }
+  .fc-plan-top {
+    flex-direction: row;
+    align-items: center;
+    font-size: 15px;
+    margin-bottom: 21px;
+  }
+  .fc-plan h3 {
+    font-size: 29px;
+    margin-bottom: 18px;
+  }
+  .fc-price strong {
+    font-size: 63px;
+  }
+  .fc-price > span {
+    font-size: 19px;
+  }
+  .fc-plan li {
+    font-size: 17px;
+  }
+  .fc-plan .fc-button {
+    font-size: 16px;
+    gap: 10px;
+    padding-inline: 20px;
+  }
+  .fc-plan .fc-button svg {
+    width: 19px;
+  }
+  .fc-plan ul {
+    margin-bottom: 23px;
+  }
+  .fc-plan-note {
+    font-size: 14px;
+  }
+  .fc-offers {
+    padding-block: 40px;
+  }
+  .fc-offers .fc-section-heading h2 {
+    font-size: 32px;
+  }
+  .fc-empty {
+    font-size: 16px;
+  }
+  .fc-offer-grid {
+    grid-template-columns: 1fr;
+  }
+  .fc-calendar-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .fc-calendar {
+    padding: 20px;
+  }
+  .fc-calendar-toolbar h3 {
+    font-size: 29px;
+  }
+  .fc-weekdays {
+    font-size: 12px;
+  }
+  .fc-days button {
+    font-size: 17px;
+  }
+  .fc-days button i {
+    bottom: 6px;
+  }
+  .fc-calendar-key {
+    font-size: 12px;
+  }
+  .fc-day-detail h3 {
+    font-size: 28px;
+  }
+  .fc-coach-grid {
+    gap: 32px 20px;
+  }
+  .fc-coach-image {
+    aspect-ratio: 1;
+  }
+  .fc-coach h3 {
+    font-size: 23px;
+    margin-top: 20px;
+  }
+  .fc-coach p {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .fc-corporate-items {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-bottom: 30px;
+  }
+  .fc-corporate-items h3 {
+    font-size: 27px;
+  }
+  .fc-corporate-items p {
+    font-size: 16px;
+  }
+  .fc-faq summary {
+    font-size: 18px;
+    padding-block: 22px;
+  }
+  .fc-faq details p {
+    font-size: 16px;
+  }
+  .fc-contact-layout {
+    grid-template-columns: 1fr;
+    gap: 43px;
+  }
+  .fc-contact-details {
+    gap: 23px;
+  }
+  .fc-contact-details > a,
+  .fc-contact-details > p {
+    font-size: 17px;
+  }
+  .fc-footer {
+    padding-bottom: 105px;
+  }
+  .fc-footer > .fc-container {
+    flex-wrap: wrap;
+    font-size: 12px;
+    gap: 20px;
+  }
+  .fc-footer span {
+    display: none;
+  }
+  .fc-mobile-cta {
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #111;
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
+    z-index: 45;
+    border-top: 1px solid #444;
+  }
+  .fc-mobile-cta > .fc-button {
+    flex: 1;
+    min-height: 49px;
+    font-size: 15px;
+  }
+  .fc-mobile-cta > a:last-child {
+    color: #fff;
+    display: grid;
+    place-items: center;
+    width: 49px;
+    height: 49px;
+    border: 1px solid #555;
+    border-radius: 3px;
+  }
+  .fc-gallery {
+    grid-template-columns: 1fr;
+  }
+  [dir='rtl'] .fc-hero-copy h1 {
+    font-size: 44px;
+    max-width: 400px;
+  }
+  [dir='rtl'] .fc-section-heading h2,
+  [dir='rtl'] .fc-about h2 {
+    font-size: 34px;
+  }
+  [dir='rtl'] .fc-program-options button {
+    font-size: 20px;
+  }
+  [dir='rtl'] .fc-price strong {
+    font-size: 51px;
+  }
+  [dir='rtl'] .fc-plan h3 {
+    font-size: 24px;
+  }
+  [dir='rtl'] .fc-coach h3 {
+    font-size: 20px;
+  }
+  [dir='rtl'] .fc-corporate-items h3 {
+    font-size: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-ring-lines path {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .fc-program-options button svg,
+  .fc-coach-image img {
+    transition: none;
+  }
+}
+.fc-hero-brand {
+  perspective: 850px;
+}
+.fc-hero-interactive {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.fc-duration button {
+  position: relative;
+  isolation: isolate;
+}
+.fc-duration button[aria-pressed='true'] {
+  background: transparent;
+}
+.fc-choice-highlight {
+  position: absolute;
+  inset: 0;
+  background: #111;
+  border-radius: 2px;
+  z-index: -1;
+  pointer-events: none;
+}
+.fc-choice-label {
+  position: relative;
+}
+.fc-days button {
+  isolation: isolate;
+}
+.fc-days button[aria-pressed='true'] {
+  background: transparent;
+}
+.fc-day-highlight {
+  position: absolute;
+  inset: 0;
+  background: #111;
+  border-radius: 3px;
+  z-index: -1;
+  pointer-events: none;
+}
+.fc-day-number {
+  position: relative;
+}
+.fc-program-options button:focus-visible {
+  outline-offset: -3px;
+  background: #e3e4e0;
+}
+.fc-mat {
+  isolation: isolate;
+}
+.fc-mat > div {
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-hero-interactive {
+    transform: none !important;
+  }
+  .fc-mat > div {
+    will-change: auto;
+  }
+}
