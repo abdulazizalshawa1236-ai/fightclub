@@ -68,13 +68,15 @@ export function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: 
         transition={{ duration: 0.4 }}
       >
         <section className="member-login-story">
-          <Image
-            src="/assets/logo-interior.png"
-            alt={say(locale, 'Fight Club brand artwork', 'هوية فايت كلوب')}
-            fill
-            priority
-            sizes="(max-width: 760px) 100vw, 52vw"
-          />
+          <div className="member-story-art">
+            <Image
+              src="/assets/logo-interior.png"
+              alt={say(locale, 'Fight Club brand artwork', 'هوية فايت كلوب')}
+              fill
+              priority
+              sizes="(max-width: 760px) 100vw, 52vw"
+            />
+          </div>
           <div className="member-story-copy">
             <span className="member-story-tag">
               {say(locale, 'Your club. Your corner.', 'ناديك. مكانك.')}
