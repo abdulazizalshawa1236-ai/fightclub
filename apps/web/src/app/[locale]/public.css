@@ -1,8 +1,16 @@
 .fc-website {
   --fc-red: #e8343a;
-  --fc-black: #111;
-  --fc-silver: #dddeda;
-  --fc-paper: #f6f6f4;
+  --fc-accent-text: #f15b61;
+  --fc-black: #0b0c0f;
+  --fc-paper: #101216;
+  --fc-surface: #15171c;
+  --fc-raised: #1c1f25;
+  --fc-border: #363941;
+  --fc-text: #f4f4f2;
+  --fc-muted: #b3b6bf;
+  --fc-action: #c52b31;
+  color-scheme: dark;
+  color: var(--fc-text);
   overflow: clip;
   background: var(--fc-paper);
 }
@@ -31,7 +39,7 @@
   top: 10px;
   inset-inline-start: 15px;
   transform: translateY(-200%);
-  background: #fff;
+  background: var(--fc-surface);
   padding: 12px;
   z-index: 100;
 }
@@ -41,9 +49,9 @@
 .fc-nav {
   position: sticky;
   top: 0;
-  background: #111;
-  color: #fff;
-  border-bottom: 1px solid #383838;
+  background: var(--fc-black);
+  color: var(--fc-text);
+  border-bottom: 1px solid var(--fc-border);
   z-index: 50;
 }
 .fc-nav-inner {
@@ -74,7 +82,7 @@
   transition: color 0.2s;
 }
 .fc-nav-menu a:hover {
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
 }
 .fc-nav-actions {
   display: flex;
@@ -83,7 +91,7 @@
 }
 .fc-language {
   font-size: 14px;
-  border-inline-end: 1px solid #555;
+  border-inline-end: 1px solid var(--fc-border);
   padding-inline-end: 22px;
 }
 .fc-nav-member {
@@ -103,7 +111,7 @@
 }
 .fc-hero {
   background: var(--fc-black);
-  color: #fff;
+  color: var(--fc-text);
   position: relative;
 }
 .fc-hero-body {
@@ -118,7 +126,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #b3b3b3;
+  color: var(--fc-muted);
   font-size: 15px;
 }
 .fc-hero-copy {
@@ -135,7 +143,7 @@
   font-size: 19px;
   line-height: 1.7;
   max-width: 520px;
-  color: #bbb;
+  color: var(--fc-muted);
 }
 .fc-hero-actions {
   display: flex;
@@ -148,10 +156,10 @@
   gap: 10px;
   align-items: center;
   justify-content: center;
-  background: var(--fc-red);
-  border: 1px solid var(--fc-red);
+  background: var(--fc-action);
+  border: 1px solid var(--fc-action);
   padding: 16px 22px;
-  color: #fff;
+  color: var(--fc-text);
   font-weight: 700;
   font-size: 16px;
   line-height: 1.2;
@@ -162,25 +170,25 @@
     border-color 0.2s;
 }
 .fc-button:hover {
-  background: #c91e25;
-  border-color: #c91e25;
+  background: #aa242a;
+  border-color: #aa242a;
 }
 .fc-button-outline {
   background: transparent;
-  border-color: #666;
+  border-color: var(--fc-muted);
 }
 .fc-button-outline:hover {
-  background: #292929;
-  border-color: #999;
+  background: var(--fc-raised);
+  border-color: var(--fc-muted);
 }
 .fc-button-light {
   background: transparent;
-  color: #111;
-  border-color: #999;
+  color: var(--fc-text);
+  border-color: var(--fc-border);
 }
 .fc-button-light:hover {
-  background: #ddd;
-  border-color: #777;
+  background: var(--fc-raised);
+  border-color: var(--fc-muted);
 }
 .fc-button-wide {
   width: 100%;
@@ -190,12 +198,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #aaa;
+  color: var(--fc-muted);
   font-size: 14px;
   width: fit-content;
 }
 .fc-member-link:hover {
-  color: #fff;
+  color: var(--fc-text);
 }
 .fc-hero-brand {
   position: relative;
@@ -223,12 +231,12 @@
   bottom: 0;
   inset-inline: 0;
   text-align: center;
-  color: #777;
+  color: var(--fc-muted);
   font-size: 15px;
 }
 .fc-sport-ticker {
-  border-block: 1px solid #383838;
-  background: #1b1b1b;
+  border-block: 1px solid var(--fc-border);
+  background: var(--fc-surface);
   overflow: hidden;
 }
 .fc-sport-ticker > div {
@@ -252,7 +260,7 @@
 .fc-sport-ticker a span {
   font-family: Arial, sans-serif;
   font-size: 14px;
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
 }
 .fc-section {
   padding-block: 105px;
@@ -269,13 +277,13 @@
 }
 .fc-section-heading p {
   font-size: 19px;
-  color: #666;
+  color: var(--fc-muted);
   line-height: 1.7;
   max-width: 730px;
   margin-bottom: 0;
 }
 .fc-about {
-  border-bottom: 1px solid #d6d6d3;
+  border-bottom: 1px solid var(--fc-border);
 }
 .fc-about-layout {
   display: grid;
@@ -292,7 +300,7 @@
   max-width: 380px;
 }
 .fc-programs {
-  background: #eeefec;
+  background: var(--fc-paper);
 }
 .fc-program-layout {
   display: grid;
@@ -302,11 +310,12 @@
 .fc-program-options {
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #bbb;
+  border-top: 1px solid var(--fc-border);
 }
 .fc-program-options button {
+  color: inherit;
   border: 0;
-  border-bottom: 1px solid #bbb;
+  border-bottom: 1px solid var(--fc-border);
   background: transparent;
   display: flex;
   justify-content: space-between;
@@ -319,7 +328,7 @@
   gap: 15px;
 }
 .fc-program-options button[aria-pressed='true'] {
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
 }
 .fc-program-options button svg {
   transition: transform 0.2s;
@@ -328,8 +337,8 @@
   transform: rotate(45deg);
 }
 .fc-program-detail {
-  background: #111;
-  color: white;
+  background: var(--fc-black);
+  color: var(--fc-text);
   padding: 36px;
   position: relative;
   display: flex;
@@ -344,7 +353,7 @@
 .fc-program-detail p {
   font-size: 19px;
   line-height: 1.7;
-  color: #aaa;
+  color: var(--fc-muted);
   max-width: 450px;
 }
 .fc-mat {
@@ -365,19 +374,19 @@
 .fc-mat > div:nth-child(2) {
   width: 212px;
   height: 212px;
-  border-color: #454545;
+  border-color: var(--fc-border);
 }
 .fc-mat span {
   font-family: var(--font-display);
   font-size: 70px;
   font-weight: 900;
-  color: #b8b8b8;
+  color: var(--fc-muted);
 }
 .fc-text-link {
   display: inline-flex;
   gap: 12px;
   align-items: center;
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
   font-weight: 700;
   line-height: 1.6;
 }
@@ -387,7 +396,7 @@
 .fc-duration {
   display: flex;
   width: fit-content;
-  border: 1px solid #ccc;
+  border: 1px solid var(--fc-border);
   border-radius: 5px;
   margin-bottom: 35px;
   padding: 5px;
@@ -400,11 +409,11 @@
   padding: 13px 24px;
   min-width: 115px;
   font-weight: 700;
-  color: #666;
+  color: var(--fc-muted);
 }
 .fc-duration button[aria-pressed='true'] {
-  background: #111;
-  color: #fff;
+  background: var(--fc-raised);
+  color: var(--fc-text);
 }
 .fc-plan-grid {
   display: grid;
@@ -412,16 +421,16 @@
   gap: 23px;
 }
 .fc-plan {
-  border: 1px solid #c9c9c7;
+  border: 1px solid var(--fc-border);
   display: flex;
   flex-direction: column;
   padding: 30px;
-  background: #fff;
+  background: var(--fc-surface);
   min-width: 0;
   position: relative;
 }
 .fc-plan-featured {
-  border-color: var(--fc-red);
+  border-color: var(--fc-accent-text);
   border-top-width: 4px;
   padding-top: 27px;
 }
@@ -435,8 +444,8 @@
   margin-bottom: 29px;
 }
 .fc-tag {
-  background: #fbe7e8;
-  color: #b5262c;
+  background: #3b1c23;
+  color: #ff8b90;
   padding: 6px 10px;
   font-size: 13px;
   font-family: var(--font-body);
@@ -461,7 +470,7 @@
 }
 .fc-price del {
   width: 100%;
-  color: #888;
+  color: var(--fc-muted);
   font-size: 20px;
 }
 .fc-price > span {
@@ -470,7 +479,7 @@
 }
 .fc-plan-duration {
   font-size: 15px;
-  color: #777;
+  color: var(--fc-muted);
   margin: 7px 0 26px;
 }
 .fc-plan-duration span {
@@ -492,19 +501,19 @@
 }
 .fc-plan li svg {
   flex-shrink: 0;
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
   margin-top: 5px;
 }
 .fc-plan-note {
   margin-top: 23px;
-  color: #777;
+  color: var(--fc-muted);
   font-size: 16px;
   line-height: 1.7;
   max-width: 900px;
 }
 .fc-offers {
   padding-block: 60px;
-  background: #e9eae7;
+  background: var(--fc-paper);
 }
 .fc-offers .fc-section-heading {
   margin-bottom: 25px;
@@ -517,7 +526,7 @@
 }
 .fc-empty {
   line-height: 1.8;
-  color: #666;
+  color: var(--fc-muted);
   font-size: 17px;
 }
 .fc-offers .fc-empty {
@@ -529,7 +538,7 @@
   gap: 25px;
 }
 .fc-offer-grid article {
-  background: #fff;
+  background: var(--fc-surface);
   padding: 30px;
 }
 .fc-offer-grid h3 {
@@ -538,13 +547,13 @@
 }
 .fc-offer-grid p {
   line-height: 1.7;
-  color: #666;
+  color: var(--fc-muted);
 }
 .fc-offer-grid details {
   margin-bottom: 20px;
 }
 .fc-schedule {
-  background: #f6f6f4;
+  background: var(--fc-paper);
 }
 .fc-calendar-layout {
   display: grid;
@@ -554,8 +563,8 @@
 }
 .fc-calendar {
   padding: 30px;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--fc-surface);
+  border: 1px solid var(--fc-border);
 }
 .fc-calendar-toolbar {
   display: flex;
@@ -573,12 +582,13 @@
   gap: 9px;
 }
 .fc-calendar-toolbar button {
+  color: inherit;
   display: grid;
   place-items: center;
   width: 39px;
   height: 39px;
-  border: 1px solid #ddd;
-  background: white;
+  border: 1px solid var(--fc-border);
+  background: var(--fc-raised);
   border-radius: 3px;
 }
 .fc-weekdays,
@@ -590,12 +600,12 @@
 .fc-weekdays {
   text-align: center;
   font-size: 13px;
-  color: #777;
+  color: var(--fc-muted);
   margin-bottom: 10px;
 }
 .fc-days button {
   border: 1px solid transparent;
-  background: #f6f6f4;
+  background: var(--fc-raised);
   aspect-ratio: 1;
   position: relative;
   display: grid;
@@ -603,17 +613,17 @@
   font-weight: 700;
   font-size: 18px;
   border-radius: 3px;
-  color: #333;
+  color: var(--fc-text);
 }
 .fc-days button:hover {
-  border-color: #999;
+  border-color: var(--fc-muted);
 }
 .fc-days button[aria-pressed='true'] {
-  background: #111;
-  color: #fff;
+  background: var(--fc-raised);
+  color: var(--fc-text);
 }
 .fc-days button.fc-today {
-  border-color: var(--fc-red);
+  border-color: var(--fc-accent-text);
 }
 .fc-days button i {
   width: 4px;
@@ -623,12 +633,15 @@
   position: absolute;
   bottom: 9px;
 }
+.fc-days button[aria-pressed='true'] i {
+  background: var(--fc-text);
+}
 .fc-calendar-key {
   display: flex;
   gap: 8px;
   align-items: center;
   font-size: 13px;
-  color: #777;
+  color: var(--fc-muted);
   margin: 22px 0 0;
   line-height: 1.7;
 }
@@ -649,13 +662,13 @@
 }
 .fc-class {
   padding-block: 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--fc-border);
 }
 .fc-class-time {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
   font-weight: 700;
   font-size: 14px;
   margin-bottom: 14px;
@@ -667,22 +680,22 @@
 .fc-class p {
   font-size: 16px;
   line-height: 1.6;
-  color: #777;
+  color: var(--fc-muted);
   margin-bottom: 8px;
 }
 .fc-class-cancelled h4 {
   text-decoration: line-through;
 }
 .fc-class-cancelled > strong {
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
   font-size: 14px;
 }
 .fc-coaches {
-  background: #111;
-  color: #fff;
+  background: var(--fc-black);
+  color: var(--fc-text);
 }
 .fc-coaches .fc-section-heading p {
-  color: #999;
+  color: var(--fc-muted);
 }
 .fc-coach-grid {
   display: grid;
@@ -692,7 +705,7 @@
 .fc-coach-image {
   position: relative;
   aspect-ratio: 1.25;
-  background: #292929;
+  background: var(--fc-raised);
   border-bottom: 3px solid #e8343a;
   overflow: hidden;
 }
@@ -710,13 +723,13 @@
   margin: 24px 0 12px;
 }
 .fc-coach p {
-  color: #999;
+  color: var(--fc-muted);
   line-height: 1.8;
   font-size: 15px;
   margin-bottom: 0;
 }
 .fc-corporate {
-  background: #ededeb;
+  background: var(--fc-paper);
 }
 .fc-corporate-items {
   display: grid;
@@ -725,7 +738,7 @@
   margin-bottom: 38px;
 }
 .fc-corporate-items article {
-  border-top: 1px solid #bbb;
+  border-top: 1px solid var(--fc-border);
   padding-top: 26px;
 }
 .fc-corporate-items h3 {
@@ -734,7 +747,7 @@
 }
 .fc-corporate-items p {
   font-size: 18px;
-  color: #666;
+  color: var(--fc-muted);
   line-height: 1.7;
   max-width: 520px;
   margin: 0;
@@ -745,10 +758,10 @@
   gap: 70px;
 }
 .fc-faq details {
-  border-top: 1px solid #bbb;
+  border-top: 1px solid var(--fc-border);
 }
 .fc-faq details:last-child {
-  border-bottom: 1px solid #bbb;
+  border-bottom: 1px solid var(--fc-border);
 }
 .fc-faq summary {
   display: flex;
@@ -773,13 +786,13 @@
 .fc-faq details p {
   font-size: 18px;
   line-height: 1.8;
-  color: #666;
+  color: var(--fc-muted);
   padding: 0 30px 14px 0;
   margin-bottom: 0;
 }
 .fc-contact {
-  background: #111;
-  color: #fff;
+  background: var(--fc-black);
+  color: var(--fc-text);
 }
 .fc-contact-layout {
   display: grid;
@@ -787,7 +800,7 @@
   gap: 70px;
 }
 .fc-contact .fc-section-heading p {
-  color: #999;
+  color: var(--fc-muted);
 }
 .fc-contact-details {
   display: flex;
@@ -806,16 +819,16 @@
   line-height: 1.6;
 }
 .fc-contact-details > a:hover {
-  color: var(--fc-red);
+  color: var(--fc-accent-text);
 }
 .fc-contact-details svg {
   flex-shrink: 0;
-  color: #888;
+  color: var(--fc-muted);
 }
 .fc-footer {
-  background: #111;
-  color: #777;
-  border-top: 1px solid #333;
+  background: var(--fc-black);
+  color: var(--fc-muted);
+  border-top: 1px solid var(--fc-border);
   padding-block: 30px;
   font-size: 14px;
 }
@@ -829,7 +842,7 @@
   margin: 0;
 }
 .fc-footer a:hover {
-  color: white;
+  color: var(--fc-text);
 }
 .fc-gallery {
   display: grid;
@@ -842,7 +855,7 @@
 }
 .fc-gallery p {
   line-height: 1.8;
-  color: #666;
+  color: var(--fc-muted);
 }
 .fc-editorial-item {
   margin-top: 35px;
@@ -967,11 +980,11 @@
     position: absolute;
     top: 75px;
     inset-inline: 0;
-    background: #111;
+    background: var(--fc-black);
     align-items: stretch;
     gap: 0;
     padding: 15px 32px 22px;
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid var(--fc-border);
   }
   .fc-nav-menu-open {
     display: flex;
@@ -980,7 +993,7 @@
   .fc-nav-menu a {
     font-size: 18px;
     padding: 17px 0;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--fc-border);
   }
   .fc-hero-body {
     grid-template-columns: 1fr 1fr;
@@ -1412,10 +1425,10 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #111;
+    background: var(--fc-black);
     padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
     z-index: 45;
-    border-top: 1px solid #444;
+    border-top: 1px solid var(--fc-border);
   }
   .fc-mobile-cta > .fc-button {
     flex: 1;
@@ -1423,12 +1436,12 @@
     font-size: 15px;
   }
   .fc-mobile-cta > a:last-child {
-    color: #fff;
+    color: var(--fc-text);
     display: grid;
     place-items: center;
     width: 49px;
     height: 49px;
-    border: 1px solid #555;
+    border: 1px solid var(--fc-border);
     border-radius: 3px;
   }
   .fc-gallery {
@@ -1486,7 +1499,7 @@
 .fc-choice-highlight {
   position: absolute;
   inset: 0;
-  background: #111;
+  background: var(--fc-action);
   border-radius: 2px;
   z-index: -1;
   pointer-events: none;
@@ -1503,7 +1516,7 @@
 .fc-day-highlight {
   position: absolute;
   inset: 0;
-  background: #111;
+  background: var(--fc-action);
   border-radius: 3px;
   z-index: -1;
   pointer-events: none;
@@ -1513,7 +1526,7 @@
 }
 .fc-program-options button:focus-visible {
   outline-offset: -3px;
-  background: #e3e4e0;
+  background: var(--fc-raised);
 }
 .fc-mat {
   isolation: isolate;
