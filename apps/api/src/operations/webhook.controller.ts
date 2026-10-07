@@ -88,7 +88,7 @@ export class WebhookController {
             ).rows[0];
             if (receipt)
               await client.query(
-                `UPDATE outbox SET status=$2,provider_id=$1,error=$3,updated_at=now() WHERE (provider_id=$1 OR id::text=$4) AND (status IN ('sending','unknown','accepted','failed') OR (status='delivered' AND $2='read'))`,
+                `UPDATE outbox SET status=$2,provider_id=$1,error=$3,updated_at=now() WHERE channel='whatsapp' AND (provider_id=$1 OR id::text=$4) AND (status IN ('sending','unknown','accepted','failed') OR (status='delivered' AND $2='read'))`,
                 [item.id, receipt.status, receipt.error, item.biz_opaque_callback_data || null],
               );
           });

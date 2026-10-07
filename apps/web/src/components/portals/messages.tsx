@@ -30,6 +30,7 @@ export function DeliveryTable({
         <thead>
           <tr>
             <th>{label(locale, 'name')}</th>
+            <th>{say(locale, 'Channel', 'وسيلة الإرسال')}</th>
             <th>{say(locale, 'Category / event', 'الفئة / الحدث')}</th>
             <th>{label(locale, 'status')}</th>
             <th>{label(locale, 'date')}</th>
@@ -39,12 +40,13 @@ export function DeliveryTable({
           {messages.map((message) => (
             <tr key={message.id}>
               <td>{message.memberName}</td>
+              <td>{label(locale, message.channel)}</td>
               <td>
                 {label(locale, message.category)}
                 <small>{label(locale, message.event)}</small>
               </td>
               <td>
-                <span className={`portal-status delivery-${label(locale, message.status)}`}>
+                <span className={`portal-status delivery-${message.status}`}>
                   {label(locale, message.status)}
                 </span>
                 {message.error && <small className="portal-error-text">{message.error}</small>}
@@ -112,8 +114,20 @@ export function MessagesPanel({ locale }: { locale: Locale }) {
                 >
                   {say(
                     locale,
-                    configured ? 'Template configured' : 'Template unavailable',
-                    configured ? 'القالب مهيأ' : 'القالب غير متاح',
+                    category === 'authentication'
+                      ? configured
+                        ? 'SMS provider configured'
+                        : 'SMS provider unavailable'
+                      : configured
+                        ? 'WhatsApp template configured'
+                        : 'WhatsApp template unavailable',
+                    category === 'authentication'
+                      ? configured
+                        ? 'مزود الرسائل النصية مهيأ'
+                        : 'مزود الرسائل النصية غير متاح'
+                      : configured
+                        ? 'قالب واتساب مهيأ'
+                        : 'قالب واتساب غير متاح',
                   )}
                 </span>
               </div>
@@ -123,8 +137,8 @@ export function MessagesPanel({ locale }: { locale: Locale }) {
       <p className="portal-hint">
         {say(
           locale,
-          'WhatsApp automation uses approved Meta templates and recorded consent. Accepted means Meta accepted the message, not that the member received it.',
-          'تستخدم رسائل واتساب الآلية قوالب Meta المعتمدة والموافقات المسجلة. حالة accepted تعني قبول Meta للرسالة وليس استلام العضو لها.',
+          'Login codes are sent by SMS. WhatsApp notices use approved Meta templates and recorded consent. Accepted means the provider accepted the message, not that the member received it.',
+          'تُرسل رموز الدخول برسائل نصية. تستخدم إشعارات واتساب قوالب Meta المعتمدة والموافقات المسجلة. قبول مزود الرسائل للطلب لا يعني استلام العضو للرسالة.',
         )}
       </p>
       <section className="portal-editor">

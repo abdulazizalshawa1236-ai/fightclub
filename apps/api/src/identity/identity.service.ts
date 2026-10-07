@@ -7,7 +7,8 @@ import { DatabaseService } from '../core/database';
 import { RateLimitService } from '../core/rate-limit';
 import { parse, nationalIdSchema, phoneSchema, uuidSchema } from '../core/validation';
 import { CookieResponse, SessionService } from './sessions';
-import { ProviderUnknown, WhatsAppService } from '../operations/whatsapp.service';
+import { ProviderUnknown } from '../core/delivery-errors';
+import { SmsService } from '../sms/sms.service';
 const credentials = z
   .object({ username: z.string().min(3).max(80), password: z.string().min(1).max(72) })
   .strict();
@@ -39,7 +40,7 @@ export class IdentityService {
     private readonly crypto: CryptoService,
     private readonly rates: RateLimitService,
     private readonly sessions: SessionService,
-    private readonly whatsapp: WhatsAppService,
+    private readonly sms: SmsService,
   ) {}
   async adminLogin(input: unknown, ip: string, res: CookieResponse): Promise<{ username: string }> {
     const data = parse(credentials, input);
@@ -112,6 +113,7 @@ export class IdentityService {
     ip: string,
   ): Promise<{ challengeId: string; maskedPhone: string }> {
     const data = parse(login, input);
+    this.sms.assertConfigured();
     await Promise.all([
       this.rates.take(`member-ip:${ip}`, 10, 900),
       this.rates.take(`member-id:${data.nationalId}`, 5, 900),
@@ -158,22 +160,17 @@ export class IdentityService {
         ],
       );
       await client.query(
-        "INSERT INTO outbox(id,member_id,event,payload,category,status,event_key,claimed_at) VALUES($1,$2,'login_code',$3,'authentication','sending',$4,now())",
+        "INSERT INTO outbox(id,member_id,event,payload,category,status,event_key,claimed_at,channel) VALUES($1,$2,'login_code',$3,'authentication','sending',$4,now(),'sms')",
         [challengeId, row.id, JSON.stringify({ challengeId }), `login:${challengeId}`],
       );
       await client.query(
-        "INSERT INTO consent_events(id,member_id,category,allowed,source) VALUES($1,$2,'authentication',true,'member.login')",
+        "INSERT INTO consent_events(id,member_id,category,allowed,source) VALUES($1,$2,'authentication',true,'member.login.sms')",
         [randomUUID(), row.id],
       );
     });
     let providerId: string;
     try {
-      providerId = await this.whatsapp.sendAuthentication(
-        row.phone,
-        code,
-        data.locale,
-        challengeId,
-      );
+      providerId = await this.sms.sendAuthentication(row.phone, code, data.locale);
     } catch (error) {
       await this.db.query(
         "UPDATE login_challenges SET consumed_at=now(),delivery_status='failed' WHERE id=$1",
@@ -184,7 +181,7 @@ export class IdentityService {
         [challengeId, error instanceof ProviderUnknown ? 'unknown' : 'failed'],
       );
       throw new ServiceUnavailableException({
-        code: 'WHATSAPP_DELIVERY_FAILED',
+        code: 'SMS_DELIVERY_FAILED',
         message: 'The login code could not be sent. Please try again later.',
       });
     }

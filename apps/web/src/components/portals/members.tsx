@@ -331,8 +331,8 @@ function MemberDetail({
   }
   const accessMessage =
     locale === 'ar'
-      ? `مرحباً ${member.fullName}، يمكنك الدخول إلى بوابة النادي باستخدام هويتك ورقم الجوال المسجل واستلام رمز التحقق عبر واتساب:\n${typeof window === 'undefined' ? '' : window.location.origin}/${locale}/account`
-      : `Hello ${member.fullName}, access your club membership using your registered ID and mobile number and a WhatsApp verification code:\n${typeof window === 'undefined' ? '' : window.location.origin}/${locale}/account`;
+      ? `مرحباً ${member.fullName}، يمكنك الدخول إلى بوابة النادي باستخدام هويتك ورقم الجوال المسجل واستلام رمز التحقق برسالة نصية:\n${typeof window === 'undefined' ? '' : window.location.origin}/${locale}/account`
+      : `Hello ${member.fullName}, access your club membership using your registered ID and mobile number and an SMS verification code:\n${typeof window === 'undefined' ? '' : window.location.origin}/${locale}/account`;
   const accessUrl = whatsappLink({ ...site.settings, whatsapp: member.phone }, accessMessage);
   return (
     <section className="portal-editor">

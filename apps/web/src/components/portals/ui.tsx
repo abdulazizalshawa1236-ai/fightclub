@@ -7,10 +7,12 @@ import { api, ApiFailure } from '@/lib/api';
 export type Dictionary = Record<string, readonly [string, string]>;
 const words: Dictionary = {
   authentication: ['Login verification', 'رموز الدخول'],
+  sms: ['SMS', 'رسائل نصية'],
+  whatsapp: ['WhatsApp', 'واتساب'],
   utility: ['Membership messages', 'رسائل الاشتراك'],
   queued: ['Queued', 'في قائمة الإرسال'],
   sending: ['Sending', 'جارٍ الإرسال'],
-  accepted: ['Accepted by Meta', 'قبلتها Meta'],
+  accepted: ['Accepted by provider', 'قبلها مزود الرسائل'],
   delivered: ['Delivered', 'تم التسليم'],
   read: ['Read', 'مقروءة'],
   failed: ['Failed', 'فشلت'],
@@ -126,9 +128,11 @@ const arabicErrors = {
   INVALID_CODE: 'رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزاً جديداً وحاول مرة أخرى.',
   SESSION_REQUIRED: 'سجّل الدخول للمتابعة.',
   SESSION_EXPIRED: 'انتهت جلسة الدخول. سجّل الدخول مجدداً للمتابعة.',
+  SMS_UNAVAILABLE:
+    'إرسال رموز الدخول برسائل نصية غير متاح حالياً. تواصل مع إدارة النادي أو حاول لاحقاً.',
+  SMS_DELIVERY_FAILED: 'تعذر إرسال رمز الدخول برسالة نصية. حاول لاحقاً أو تواصل مع إدارة النادي.',
   WHATSAPP_UNAVAILABLE: 'إرسال رسائل واتساب غير متاح حالياً. تواصل مع إدارة النادي أو حاول لاحقاً.',
-  WHATSAPP_DELIVERY_FAILED:
-    'تعذر إرسال رمز الدخول عبر واتساب. حاول لاحقاً أو تواصل مع إدارة النادي.',
+  WHATSAPP_DELIVERY_FAILED: 'تعذر إرسال رسالة واتساب. حاول لاحقاً أو تواصل مع إدارة النادي.',
   ORIGIN_REJECTED: 'تعذر إرسال الطلب من هذا الموقع. افتح الموقع الرسمي للنادي وسجّل الدخول مجدداً.',
   NETWORK_UNAVAILABLE: 'تعذر الاتصال بالخدمة. تحقق من اتصال الإنترنت ثم حاول مرة أخرى.',
   REQUEST_TIMEOUT: 'استغرق الاتصال وقتاً أطول من المتوقع. حاول مرة أخرى.',

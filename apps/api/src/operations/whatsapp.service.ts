@@ -1,16 +1,8 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import type { Locale } from '@fightclub/shared';
 
-export class ProviderRejected extends Error {
-  constructor(
-    readonly retryable: boolean,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-export class ProviderUnknown extends Error {}
+import { ProviderRejected, ProviderUnknown } from '../core/delivery-errors';
 const responseSchema = z.object({ messages: z.array(z.object({ id: z.string() })).min(1) });
 @Injectable()
 export class WhatsAppService {
@@ -21,7 +13,6 @@ export class WhatsAppService {
   }
   template(event: string): string | undefined {
     const names: Record<string, string> = {
-      login: 'META_AUTH_TEMPLATE',
       expiring: 'META_EXPIRING_TEMPLATE',
       expired: 'META_EXPIRED_TEMPLATE',
       renewed: 'META_RENEWED_TEMPLATE',
@@ -30,26 +21,12 @@ export class WhatsAppService {
     const key = names[event];
     return key ? process.env[key] : undefined;
   }
-  async sendAuthentication(
-    phone: string,
-    code: string,
-    locale: Locale,
-    challengeId: string,
-  ): Promise<string> {
-    if (!this.configured('login'))
-      throw new ServiceUnavailableException({
-        code: 'WHATSAPP_UNAVAILABLE',
-        message: 'WhatsApp verification is currently unavailable. Contact the club.',
-      });
-    return this.send(phone, 'login', locale, [code], challengeId, true);
-  }
   async send(
     phone: string,
     event: string,
     locale: Locale,
     parameters: string[],
     correlationId: string,
-    authentication = false,
   ): Promise<string> {
     const template = this.template(event);
     if (!template || !this.configured(event))
@@ -57,13 +34,6 @@ export class WhatsAppService {
     const components: unknown[] = [
       { type: 'body', parameters: parameters.map((text) => ({ type: 'text', text })) },
     ];
-    if (authentication)
-      components.push({
-        type: 'button',
-        sub_type: 'url',
-        index: '0',
-        parameters: [{ type: 'text', text: parameters[0] }],
-      });
     let response: Response;
     try {
       response = await fetch(

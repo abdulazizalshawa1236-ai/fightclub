@@ -69,10 +69,10 @@ function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: () => v
           {say(
             locale,
             challenge
-              ? `Enter the code sent through WhatsApp to ${challenge.maskedPhone}.`
+              ? `Enter the code sent by SMS to ${challenge.maskedPhone}.`
               : 'Sign in with the ID and mobile number registered by the club.',
             challenge
-              ? `أدخل الرمز المرسل عبر واتساب إلى ${challenge.maskedPhone}.`
+              ? `أدخل الرمز المرسل برسالة نصية إلى ${challenge.maskedPhone}.`
               : 'ادخل باستخدام الهوية ورقم الجوال المسجلين لدى النادي.',
           )}
         </p>
@@ -141,14 +141,14 @@ function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: () => v
             <Toggle
               label={say(
                 locale,
-                'I agree to receive this login verification code on WhatsApp.',
-                'أوافق على استلام رمز التحقق للدخول عبر واتساب.',
+                'I agree to receive this login verification code by SMS.',
+                'أوافق على استلام رمز التحقق للدخول برسالة نصية.',
               )}
               checked={authConsent}
               onChange={setAuthConsent}
             />
             <button className="primary" disabled={!authConsent || action.pending} type="submit">
-              {say(locale, 'Send verification code', 'إرسال رمز التحقق')}
+              {say(locale, 'Send code by SMS', 'إرسال الرمز برسالة نصية')}
             </button>
           </form>
         )}
@@ -204,8 +204,8 @@ function Preferences({
         <p className="portal-hint">
           {say(
             locale,
-            'Choose which WhatsApp messages you receive. Login verification is requested separately when you sign in.',
-            'اختر رسائل واتساب التي ترغب باستلامها. يتم طلب الموافقة على رمز الدخول بشكل منفصل عند تسجيل الدخول.',
+            'Choose which WhatsApp messages you receive. Consent for SMS login verification is requested separately when you sign in.',
+            'اختر رسائل واتساب التي ترغب باستلامها. يتم طلب الموافقة على رمز الدخول برسالة نصية بشكل منفصل عند تسجيل الدخول.',
           )}
         </p>
         <Field label={say(locale, 'Preferred message language', 'لغة الرسائل المفضلة')}>

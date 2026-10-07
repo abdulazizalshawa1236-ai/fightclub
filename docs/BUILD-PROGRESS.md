@@ -10,7 +10,7 @@
 - [x] Build, typecheck, lint and critical-domain checks
 - [x] Browser validation of public and staff journeys
 - [x] Handover evidence and external configuration boundaries
-- [ ] Real member browser login and approved Meta delivery verification
+- [ ] Real SMS member login and approved Meta club-message verification
 - [ ] Production HTTPS, S3 and independent offsite recovery activation
 
 See [verification evidence](VERIFICATION.md) for passed checks and external requirements.

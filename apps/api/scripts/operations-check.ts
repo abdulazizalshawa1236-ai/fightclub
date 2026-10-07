@@ -9,6 +9,8 @@ import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import type { Server } from 'node:http';
 import { Pool } from 'pg';
+import { SmsService } from '../src/sms/sms.service';
+import { SmsHttpClient } from '../src/sms/sms-http.client';
 import { RuntimeConfig } from '../src/core/config';
 import { DatabaseService } from '../src/core/database';
 import { CryptoService } from '../src/core/crypto';
@@ -16,7 +18,8 @@ import { MembersService } from '../src/members/members.service';
 import { CatalogueService } from '../src/operations/catalogue.service';
 import { ScheduleService } from '../src/operations/schedule.service';
 import { CommunicationsService } from '../src/operations/communications.service';
-import { ProviderUnknown, WhatsAppService } from '../src/operations/whatsapp.service';
+import { WhatsAppService } from '../src/operations/whatsapp.service';
+import { ProviderUnknown } from '../src/core/delivery-errors';
 import { WebhookController } from '../src/operations/webhook.controller';
 import { todayRiyadh } from '../src/members/membership-domain';
 config({ path: resolve(process.cwd(), '../../.env'), quiet: true });
@@ -69,7 +72,7 @@ async function main(): Promise<void> {
       schedule = new ScheduleService(db),
       members = new MembersService(db, new CryptoService(runtime)),
       network = new NoNetworkWhatsApp(),
-      communications = new CommunicationsService(db, network),
+      communications = new CommunicationsService(db, network, new SmsService(new SmsHttpClient())),
       actor = randomUUID();
     const initialPublic = await catalogue.site(),
       initialDraft = await catalogue.site(true),
@@ -311,6 +314,11 @@ async function main(): Promise<void> {
           body: payload,
         });
       };
+    const smsId = randomUUID();
+    await db.query(
+      "INSERT INTO outbox(id,member_id,event,payload,category,status,event_key,channel,provider_id) VALUES($1,$2,'login_code','{}','authentication','accepted',$3,'sms',$4)",
+      [smsId, member.id, `fixture:${smsId}`, provider],
+    );
     assert.equal((await callback('read', 200)).status, 200);
     assert.equal((await state(uncertain)).status, 'read');
     assert.equal((await callback('delivered', 100)).status, 200);
@@ -328,8 +336,10 @@ async function main(): Promise<void> {
       '1',
     );
     assert.equal((await state(uncertain)).provider_id, provider);
+    await communications.recover();
+    assert.equal((await state(smsId)).status, 'accepted');
     process.stdout.write(
-      'PASS signed receipts, correlation reconciliation, duplicates and out-of-order status protection\n',
+      'PASS signed receipts, correlation reconciliation, duplicates, out-of-order status and SMS channel fencing\n',
     );
   } finally {
     if (server)

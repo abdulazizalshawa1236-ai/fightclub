@@ -157,6 +157,7 @@ export type DashboardStats = {
 export type MessageDelivery = {
   id: string;
   memberName: string;
+  channel: 'sms' | 'whatsapp';
   category: 'authentication' | 'utility' | 'marketing';
   event: string;
   status:

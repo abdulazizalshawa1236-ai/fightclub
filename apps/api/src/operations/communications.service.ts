@@ -3,9 +3,11 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { MessageDelivery, Locale, ClubSettings } from '@fightclub/shared';
 import { text } from '@fightclub/shared';
+import { SmsService } from '../sms/sms.service';
 import { DatabaseService } from '../core/database';
 import { parse, uuidSchema } from '../core/validation';
-import { WhatsAppService, ProviderRejected, ProviderUnknown } from './whatsapp.service';
+import { WhatsAppService } from './whatsapp.service';
+import { ProviderRejected, ProviderUnknown } from '../core/delivery-errors';
 const translated = z
   .object({ ar: z.string().min(1).max(3000), en: z.string().min(1).max(3000) })
   .strict();
@@ -41,6 +43,7 @@ export class CommunicationsService {
   constructor(
     private readonly db: DatabaseService,
     private readonly whatsapp: WhatsAppService,
+    private readonly sms: SmsService,
   ) {}
   async list(): Promise<{
     messages: MessageDelivery[];
@@ -49,6 +52,7 @@ export class CommunicationsService {
     const rows = await this.db.query<{
       id: string;
       full_name: string | null;
+      channel: MessageDelivery['channel'];
       category: MessageDelivery['category'];
       event: string;
       status: MessageDelivery['status'];
@@ -61,6 +65,7 @@ export class CommunicationsService {
       messages: rows.rows.map((x) => ({
         id: x.id,
         memberName: x.full_name || '',
+        channel: x.channel,
         category: x.category,
         event: x.event,
         status: x.status,
@@ -68,7 +73,7 @@ export class CommunicationsService {
         createdAt: x.created_at.toISOString(),
       })),
       configured: {
-        authentication: this.whatsapp.configured('login'),
+        authentication: this.sms.configured(),
         utility: ['expiring', 'expired', 'renewed'].every((e) => this.whatsapp.configured(e)),
         marketing: this.whatsapp.configured('offer'),
       },
@@ -149,14 +154,14 @@ export class CommunicationsService {
       "UPDATE outbox SET status='unknown',error='Worker interrupted during provider request; awaiting receipt or operator reconciliation',updated_at=now() WHERE status='sending' AND claimed_at<now()-interval '2 minutes'",
     );
     await this.db.query(
-      `UPDATE outbox o SET status=r.status,provider_id=r.provider_id,error=r.error,updated_at=now() FROM whatsapp_receipts r WHERE (o.provider_id=r.provider_id OR o.id::text=r.correlation_id) AND (o.status IN ('sending','unknown','accepted') OR (o.status='delivered' AND r.status='read'))`,
+      `UPDATE outbox o SET status=r.status,provider_id=r.provider_id,error=r.error,updated_at=now() FROM whatsapp_receipts r WHERE o.channel='whatsapp' AND (o.provider_id=r.provider_id OR o.id::text=r.correlation_id) AND (o.status IN ('sending','unknown','accepted') OR (o.status='delivered' AND r.status='read'))`,
     );
   }
   async dispatchOne(): Promise<boolean> {
     const pending = await this.db.transaction(async (client) => {
       const row = (
         await client.query<Pending>(
-          "SELECT * FROM outbox WHERE status='queued' AND next_attempt_at<=now() AND category<>'authentication' ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1",
+          "SELECT * FROM outbox WHERE channel='whatsapp' AND status='queued' AND next_attempt_at<=now() AND category<>'authentication' ORDER BY created_at FOR UPDATE SKIP LOCKED LIMIT 1",
         )
       ).rows[0];
       if (!row) return null;

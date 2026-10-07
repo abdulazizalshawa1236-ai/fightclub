@@ -24,7 +24,7 @@ npm run dev:web
 
 Open http://127.0.0.1:3100/ar or /en. Admin: /ar/admin. Member portal: /ar/account. The generated private `.env` contains the local admin credentials. No credentials or member fixtures are committed. Seeding preserves existing catalogue edits and creates no classes or members.
 
-Run `npm run build -w @fightclub/api` and `npm run worker -w @fightclub/api` in a separate terminal to process durable notifications. Local media uses a private filesystem directory; production requires S3. WhatsApp sign-in and automated messages remain unavailable until official Meta credentials and approved templates are configured. The app never substitutes a fake OTP or reports a missing provider as successful delivery.
+Run `npm run build -w @fightclub/api` and `npm run worker -w @fightclub/api` in a separate terminal to process durable notifications. Local media uses a private filesystem directory; production requires S3. Member login uses SMS through Taqnyat. Set `SMS_PROVIDER=taqnyat`, `TAQNYAT_BEARER_TOKEN` and `TAQNYAT_SENDER` in the private environment, activate the sender and authorize the server IP in the provider account. Enrollment requests and club messages continue to use WhatsApp. Automated WhatsApp messages need official Meta credentials and approved templates. The app never substitutes a fake OTP or reports a missing provider as successful delivery.
 
 ## Structure
 
@@ -47,6 +47,6 @@ npm run test:integration -w @fightclub/api
 npm run build
 ```
 
-Integration checks require the local PostgreSQL database. Operations checks use an isolated schema and substitute only the external WhatsApp network adapter. Verification does not send real messages.
+Integration checks require the local PostgreSQL database. Operations checks use an isolated schema. Tests substitute external SMS/WhatsApp network boundaries; verification does not send real messages.
 
 See [architecture](docs/ARCHITECTURE.md), [API contracts](docs/API-CONTRACT.md), [operations and deployment](docs/OPERATIONS.md), [legacy audit](docs/LEGACY-AUDIT.md), and [handover evidence](docs/VERIFICATION.md).

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SmsModule } from '../sms/sms.module';
 import { IdentityModule } from '../identity/identity.module';
 import { WhatsAppModule } from './whatsapp.module';
 import { CatalogueService } from './catalogue.service';
@@ -10,7 +11,7 @@ import { MediaService } from './media.service';
 import { OperationsController } from './operations.controller';
 import { WebhookController } from './webhook.controller';
 @Module({
-  imports: [IdentityModule, WhatsAppModule],
+  imports: [IdentityModule, WhatsAppModule, SmsModule],
   providers: [CatalogueService, ScheduleService, CommunicationsService, MediaService],
   controllers: [
     CatalogueController,
