@@ -10,6 +10,11 @@ export interface CookieResponse {
   clearCookie(name: string, options: CookieOptions): unknown;
 }
 export type Actor = { id: string; kind: 'admin' | 'member'; username?: string };
+export interface SessionRequest {
+  cookies?: unknown;
+  ip?: string;
+  actor?: Actor;
+}
 export interface ActorRequest extends Request {
   actor?: Actor;
 }
@@ -30,11 +35,14 @@ export class SessionService {
     res: CookieResponse,
     identityVersion: number | null = null,
     client?: PoolClient,
+    localPreview = false,
   ): Promise<void> {
+    if (localPreview && kind !== 'member')
+      throw new Error('Local preview sessions are only available for members');
     const token = randomBytes(32).toString('base64url');
     const sql =
-      "INSERT INTO sessions(token_digest,kind,actor_id,identity_version,expires_at) VALUES($1,$2,$3,$4,now()+interval '12 hours')";
-    const params = [this.crypto.digest(token), kind, id, identityVersion];
+      "INSERT INTO sessions(token_digest,kind,actor_id,identity_version,expires_at,local_preview) VALUES($1,$2,$3,$4,now()+interval '12 hours',$5)";
+    const params = [this.crypto.digest(token), kind, id, identityVersion, localPreview];
     if (client) await client.query(sql, params);
     else await this.db.query(sql, params);
     res.cookie(`fc_${kind}`, token, {
@@ -45,7 +53,7 @@ export class SessionService {
       maxAge: 43200000,
     });
   }
-  async resolve(req: ActorRequest, kind: Actor['kind']): Promise<Actor> {
+  async resolve(req: SessionRequest, kind: Actor['kind']): Promise<Actor> {
     const cookies: unknown = req.cookies;
     const token =
       typeof cookies === 'object' && cookies !== null && `fc_${kind}` in cookies
@@ -53,19 +61,19 @@ export class SessionService {
         : undefined;
     if (typeof token !== 'string' || token.length > 100)
       throw new UnauthorizedException({ code: 'SESSION_REQUIRED', message: 'Please sign in.' });
-    const result = await this.db.query<{ id: string; username?: string }>(
+    const result = await this.db.query<{ id: string; username?: string; local_preview?: boolean }>(
       kind === 'admin'
         ? "SELECT a.id,a.username FROM sessions s JOIN admins a ON a.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='admin' AND s.expires_at>now()"
-        : "SELECT m.id FROM sessions s JOIN members m ON m.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='member' AND s.expires_at>now() AND m.access_enabled AND m.archived_at IS NULL AND m.phone_verified_at IS NOT NULL AND s.identity_version=m.identity_version",
+        : "SELECT m.id,s.local_preview FROM sessions s JOIN members m ON m.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='member' AND s.expires_at>now() AND m.access_enabled AND m.archived_at IS NULL AND (m.phone_verified_at IS NOT NULL OR s.local_preview) AND s.identity_version=m.identity_version",
       [this.crypto.digest(token)],
     );
     const row = result.rows[0];
-    if (!row)
+    if (!row || (row.local_preview && !this.config.permitsLocalOtp(req.ip || '')))
       throw new UnauthorizedException({
         code: 'SESSION_EXPIRED',
         message: 'Your session has expired. Please sign in again.',
       });
-    req.actor = { ...row, kind };
+    req.actor = { id: row.id, username: row.username, kind };
     return req.actor;
   }
   async revoke(req: ActorRequest, res: CookieResponse, kind: Actor['kind']): Promise<void> {

@@ -95,13 +95,278 @@ async function verifySmsWireFormat(): Promise<void> {
     'PASS Taqnyat endpoint, bearer header and single-recipient JSON wire format\n',
   );
 }
+async function withEnvironment(
+  values: Record<string, string | undefined>,
+  action: () => Promise<void>,
+): Promise<void> {
+  const previous = new Map(Object.keys(values).map((key) => [key, process.env[key]]));
+  for (const [key, value] of Object.entries(values)) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
+  try {
+    await action();
+  } finally {
+    for (const [key, value] of previous) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+}
+async function verifyPreviewStartupGates(): Promise<void> {
+  const safe = {
+    LOCAL_OTP_PREVIEW: 'true',
+    NODE_ENV: 'development',
+    APP_ORIGIN: 'http://127.0.0.1:3100',
+    TRUST_PROXY: '0',
+  };
+  for (const unsafe of [
+    { NODE_ENV: 'production' },
+    { NODE_ENV: 'test' },
+    { APP_ORIGIN: 'https://club.example.com' },
+    { TRUST_PROXY: '1' },
+    { APP_ORIGIN: 'http://localhost.attacker.test' },
+  ]) {
+    await withEnvironment({ ...safe, ...unsafe }, async () =>
+      assert.throws(() => new RuntimeConfig()),
+    );
+  }
+  await withEnvironment(safe, async () => {
+    const config = new RuntimeConfig();
+    assert.equal(config.permitsLocalOtp('127.0.0.1'), true);
+    assert.equal(config.permitsLocalOtp('::1'), true);
+    assert.equal(config.permitsLocalOtp('::ffff:127.0.0.1'), true);
+    assert.equal(config.permitsLocalOtp('192.0.2.1'), false);
+  });
+  process.stdout.write(
+    'PASS preview startup production, public-origin, proxy and request-IP gates\n',
+  );
+}
+async function verifyLocalPreview(
+  db: DatabaseService,
+  crypto: CryptoService,
+  sms: SmsService,
+  smsClient: CapturingSmsClient,
+  memberId: string,
+  nationalId: string,
+  phone: string,
+  response: CookieResponse,
+): Promise<void> {
+  const ip = '127.0.0.1',
+    input = { nationalId, phone, authConsent: true, locale: 'en' };
+  const previousProof = (
+    await db.query<{ proof: string | null }>(
+      'SELECT phone_verified_at::text proof FROM members WHERE id=$1',
+      [memberId],
+    )
+  ).rows[0]?.proof;
+  await db.query('UPDATE members SET phone_verified_at=NULL WHERE id=$1', [memberId]);
+  let localToken: string | undefined;
+  const capture: CookieResponse = {
+    cookie(name, value, options) {
+      if (name === 'fc_member') localToken = value;
+      return response.cookie(name, value, options);
+    },
+    clearCookie(name, options) {
+      return response.clearCookie(name, options);
+    },
+  };
+  await db.query('DELETE FROM rate_limits WHERE key=ANY($1::text[])', [
+    [
+      crypto.digest(`member-id:${nationalId}`),
+      crypto.digest(`member-phone:${phone}`),
+      crypto.digest(`member-ip:${ip}`),
+      crypto.digest(`verify:${ip}`),
+    ],
+  ]);
+  await withEnvironment(
+    {
+      LOCAL_OTP_PREVIEW: 'true',
+      NODE_ENV: 'development',
+      APP_ORIGIN: 'http://127.0.0.1:3100',
+      TRUST_PROXY: '0',
+    },
+    async () => {
+      const runtime = new RuntimeConfig(),
+        localSessions = new SessionService(db, crypto, runtime);
+      const identity = new IdentityService(
+          db,
+          crypto,
+          new RateLimitService(db, crypto),
+          localSessions,
+          sms,
+          runtime,
+        ),
+        calls = smsClient.calls;
+      await assert.rejects(identity.memberLogin(input, '192.0.2.1'), (error) =>
+        errorCode(error, 'LOCAL_PREVIEW_FORBIDDEN'),
+      );
+      const challenge = await identity.memberLogin(input, ip);
+      assert.ok(challenge.developmentCode);
+      const stored = (
+        await db.query<{
+          delivery_status: string;
+          code_digest: string;
+          channel: string;
+          status: string;
+          provider_id: string | null;
+          payload: unknown;
+        }>(
+          'SELECT c.delivery_status,c.code_digest,o.channel,o.status,o.provider_id,o.payload FROM login_challenges c JOIN outbox o ON o.id=c.id WHERE c.id=$1',
+          [challenge.challengeId],
+        )
+      ).rows[0];
+      assert.ok(stored);
+      assert.equal(stored.delivery_status, 'local_preview');
+      assert.equal(stored.channel, 'local');
+      assert.equal(stored.status, 'preview');
+      assert.equal(stored.provider_id, null);
+      assert.equal(
+        stored.code_digest,
+        crypto.digest(`${challenge.challengeId}:${challenge.developmentCode}`),
+      );
+      assert.deepEqual(stored.payload, { challengeId: challenge.challengeId });
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: challenge.challengeId, code: challenge.developmentCode },
+          '192.0.2.1',
+          capture,
+        ),
+      );
+      const results = await Promise.allSettled([
+        identity.memberVerify(
+          { challengeId: challenge.challengeId, code: challenge.developmentCode },
+          ip,
+          capture,
+        ),
+        identity.memberVerify(
+          { challengeId: challenge.challengeId, code: challenge.developmentCode },
+          ip,
+          capture,
+        ),
+      ]);
+      assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1);
+      assert.ok(localToken);
+      const request = { cookies: { fc_member: localToken }, ip };
+      assert.equal((await localSessions.resolve(request, 'member')).id, memberId);
+      await assert.rejects(localSessions.resolve({ ...request, ip: '192.0.2.1' }, 'member'));
+      assert.equal(
+        (
+          await db.query<{ proof: string | null }>(
+            'SELECT phone_verified_at::text proof FROM members WHERE id=$1',
+            [memberId],
+          )
+        ).rows[0]?.proof,
+        null,
+      );
+      assert.equal(
+        (
+          await db.query<{ eligible: string }>(
+            'SELECT count(*) eligible FROM members WHERE id=$1 AND marketing_consent AND access_enabled AND archived_at IS NULL AND phone_verified_at IS NOT NULL',
+            [memberId],
+          )
+        ).rows[0]?.eligible,
+        '0',
+      );
+      const bounded = await identity.memberLogin(input, ip);
+      assert.ok(bounded.developmentCode);
+      for (let attempt = 0; attempt < 5; attempt++)
+        await assert.rejects(
+          identity.memberVerify({ challengeId: bounded.challengeId, code: '000000' }, ip, capture),
+        );
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: bounded.challengeId, code: bounded.developmentCode },
+          ip,
+          capture,
+        ),
+      );
+      const expired = await identity.memberLogin(input, ip);
+      assert.ok(expired.developmentCode);
+      await db.query(
+        "UPDATE login_challenges SET expires_at=now()-interval '1 second' WHERE id=$1",
+        [expired.challengeId],
+      );
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: expired.challengeId, code: expired.developmentCode },
+          ip,
+          capture,
+        ),
+      );
+      const disabled = await identity.memberLogin(input, ip);
+      assert.ok(disabled.developmentCode);
+      await withEnvironment({ LOCAL_OTP_PREVIEW: 'false' }, async () => {
+        const normalConfig = new RuntimeConfig(),
+          normalSessions = new SessionService(db, crypto, normalConfig);
+        assert.ok(localToken);
+        await assert.rejects(
+          normalSessions.resolve({ cookies: { fc_member: localToken }, ip }, 'member'),
+        );
+        const normal = new IdentityService(
+          db,
+          crypto,
+          new RateLimitService(db, crypto),
+          normalSessions,
+          sms,
+          normalConfig,
+        );
+        await assert.rejects(
+          normal.memberVerify(
+            { challengeId: disabled.challengeId, code: disabled.developmentCode },
+            ip,
+            capture,
+          ),
+        );
+      });
+      if (previousProof) {
+        await db.query('UPDATE members SET phone_verified_at=$2::timestamptz WHERE id=$1', [
+          memberId,
+          previousProof,
+        ]);
+        const keepProof = await identity.memberLogin(input, ip);
+        assert.ok(keepProof.developmentCode);
+        await identity.memberVerify(
+          { challengeId: keepProof.challengeId, code: keepProof.developmentCode },
+          ip,
+          capture,
+        );
+        assert.equal(
+          (
+            await db.query<{ proof: string }>(
+              'SELECT phone_verified_at::text proof FROM members WHERE id=$1',
+              [memberId],
+            )
+          ).rows[0]?.proof,
+          previousProof,
+        );
+      }
+      assert.equal(smsClient.calls, calls);
+      assert.equal(
+        (
+          await db.query<{ source: string }>(
+            "SELECT source FROM consent_events WHERE member_id=$1 AND source='member.login.local_preview' LIMIT 1",
+            [memberId],
+          )
+        ).rows[0]?.source,
+        'member.login.local_preview',
+      );
+    },
+  );
+  process.stdout.write(
+    'PASS local preview hash-only storage, no provider send, concurrency, expiry, attempt bounds, session fencing and no fabricated phone verification\n',
+  );
+}
 async function main(): Promise<void> {
   if (
     !process.env.DATABASE_URL ||
     !['127.0.0.1', 'localhost'].includes(new URL(process.env.DATABASE_URL).hostname)
   )
     throw new Error('Regression checks require a local database');
+  await verifyPreviewStartupGates();
   await verifySmsWireFormat();
+  const previousPreview = process.env.LOCAL_OTP_PREVIEW;
+  process.env.LOCAL_OTP_PREVIEW = 'false';
   const runtime = new RuntimeConfig(),
     db = new DatabaseService(runtime),
     crypto = new CryptoService(runtime),
@@ -109,7 +374,14 @@ async function main(): Promise<void> {
     members = new MembersService(db, crypto),
     smsClient = new CapturingSmsClient(),
     sms = new SmsService(smsClient),
-    identity = new IdentityService(db, crypto, new RateLimitService(db, crypto), sessions, sms);
+    identity = new IdentityService(
+      db,
+      crypto,
+      new RateLimitService(db, crypto),
+      sessions,
+      sms,
+      runtime,
+    );
   const originalSms = {
     provider: process.env.SMS_PROVIDER,
     token: process.env.TAQNYAT_BEARER_TOKEN,
@@ -125,7 +397,7 @@ async function main(): Promise<void> {
     },
   };
   const idNumber = `1${randomInt(100000000, 999999999)}`,
-    phone = '966501234567';
+    phone = `9665${randomInt(10000000, 99999999)}`;
   let memberId: string | undefined;
   const adminId = randomUUID(),
     username = `check-${adminId.slice(0, 8)}`,
@@ -236,6 +508,7 @@ async function main(): Promise<void> {
     process.stdout.write(
       'PASS SMS preflight without challenge writes, numeric/string receipts, recipient rejection, concurrent single use, consent preservation and unknown outcome without retry\n',
     );
+    await verifyLocalPreview(db, crypto, sms, smsClient, member.id, idNumber, phone, response);
     const input = {
       planId: catalogue.id,
       sports: [sport.id],
@@ -337,6 +610,8 @@ async function main(): Promise<void> {
     );
     process.stdout.write('PASS admin current-password check and session revocation\n');
   } finally {
+    if (previousPreview === undefined) delete process.env.LOCAL_OTP_PREVIEW;
+    else process.env.LOCAL_OTP_PREVIEW = previousPreview;
     for (const [key, value] of [
       ['SMS_PROVIDER', originalSms.provider],
       ['TAQNYAT_BEARER_TOKEN', originalSms.token],

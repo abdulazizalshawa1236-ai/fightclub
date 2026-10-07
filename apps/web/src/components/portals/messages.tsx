@@ -137,8 +137,8 @@ export function MessagesPanel({ locale }: { locale: Locale }) {
       <p className="portal-hint">
         {say(
           locale,
-          'Login codes are sent by SMS. WhatsApp notices use approved Meta templates and recorded consent. Accepted means the provider accepted the message, not that the member received it.',
-          'تُرسل رموز الدخول برسائل نصية. تستخدم إشعارات واتساب قوالب Meta المعتمدة والموافقات المسجلة. قبول مزود الرسائل للطلب لا يعني استلام العضو للرسالة.',
+          'Member login uses SMS. Local previews are explicitly marked and do not send messages. WhatsApp notices use approved Meta templates and recorded consent. Accepted means the provider accepted the message, not that the member received it.',
+          'يستخدم دخول الأعضاء الرسائل النصية. تُميّز الاختبارات المحلية بوضوح ولا يتم خلالها إرسال رسائل. تستخدم إشعارات واتساب قوالب Meta المعتمدة والموافقات المسجلة. قبول مزود الرسائل للطلب لا يعني استلام العضو للرسالة.',
         )}
       </p>
       <section className="portal-editor">

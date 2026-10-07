@@ -8,6 +8,8 @@ export type Dictionary = Record<string, readonly [string, string]>;
 const words: Dictionary = {
   authentication: ['Login verification', 'رموز الدخول'],
   sms: ['SMS', 'رسائل نصية'],
+  local: ['Local preview', 'اختبار محلي'],
+  preview: ['Local preview', 'اختبار محلي'],
   whatsapp: ['WhatsApp', 'واتساب'],
   utility: ['Membership messages', 'رسائل الاشتراك'],
   queued: ['Queued', 'في قائمة الإرسال'],

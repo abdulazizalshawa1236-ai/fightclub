@@ -1,7 +1,14 @@
-import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { compare, hash } from 'bcrypt';
 import { randomInt, randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import type { MemberLoginChallenge } from '@fightclub/shared';
+import { RuntimeConfig } from '../core/config';
 import { CryptoService } from '../core/crypto';
 import { DatabaseService } from '../core/database';
 import { RateLimitService } from '../core/rate-limit';
@@ -41,6 +48,7 @@ export class IdentityService {
     private readonly rates: RateLimitService,
     private readonly sessions: SessionService,
     private readonly sms: SmsService,
+    private readonly config: RuntimeConfig,
   ) {}
   async adminLogin(input: unknown, ip: string, res: CookieResponse): Promise<{ username: string }> {
     const data = parse(credentials, input);
@@ -108,12 +116,15 @@ export class IdentityService {
     res.clearCookie('fc_admin', { path: '/api' });
     return result;
   }
-  async memberLogin(
-    input: unknown,
-    ip: string,
-  ): Promise<{ challengeId: string; maskedPhone: string }> {
+  async memberLogin(input: unknown, ip: string): Promise<MemberLoginChallenge> {
     const data = parse(login, input);
-    this.sms.assertConfigured();
+    const preview = this.config.localOtpPreview;
+    if (preview && !this.config.permitsLocalOtp(ip))
+      throw new ForbiddenException({
+        code: 'LOCAL_PREVIEW_FORBIDDEN',
+        message: 'Local OTP preview is available only on this computer.',
+      });
+    if (!preview) this.sms.assertConfigured();
     await Promise.all([
       this.rates.take(`member-ip:${ip}`, 10, 900),
       this.rates.take(`member-id:${data.nationalId}`, 5, 900),
@@ -150,24 +161,37 @@ export class IdentityService {
         [row.id],
       );
       await client.query(
-        "INSERT INTO login_challenges(id,member_id,phone,identity_version,code_digest,expires_at) VALUES($1,$2,$3,$4,$5,now()+interval '5 minutes')",
+        "INSERT INTO login_challenges(id,member_id,phone,identity_version,code_digest,expires_at,delivery_status) VALUES($1,$2,$3,$4,$5,now()+interval '5 minutes',$6)",
         [
           challengeId,
           row.id,
           row.phone,
           row.identity_version,
           this.crypto.digest(`${challengeId}:${code}`),
+          preview ? 'local_preview' : 'sending',
         ],
       );
       await client.query(
-        "INSERT INTO outbox(id,member_id,event,payload,category,status,event_key,claimed_at,channel) VALUES($1,$2,'login_code',$3,'authentication','sending',$4,now(),'sms')",
-        [challengeId, row.id, JSON.stringify({ challengeId }), `login:${challengeId}`],
+        "INSERT INTO outbox(id,member_id,event,payload,category,status,event_key,claimed_at,channel) VALUES($1,$2,'login_code',$3,'authentication',$5,$4,CASE WHEN $6='sms' THEN now() ELSE NULL END,$6)",
+        [
+          challengeId,
+          row.id,
+          JSON.stringify({ challengeId }),
+          `login:${challengeId}`,
+          preview ? 'preview' : 'sending',
+          preview ? 'local' : 'sms',
+        ],
       );
       await client.query(
-        "INSERT INTO consent_events(id,member_id,category,allowed,source) VALUES($1,$2,'authentication',true,'member.login.sms')",
-        [randomUUID(), row.id],
+        "INSERT INTO consent_events(id,member_id,category,allowed,source) VALUES($1,$2,'authentication',true,$3)",
+        [randomUUID(), row.id, preview ? 'member.login.local_preview' : 'member.login.sms'],
       );
     });
+    const challenge = {
+      challengeId,
+      maskedPhone: `+${row.phone.slice(0, 3)} ******${row.phone.slice(-3)}`,
+    };
+    if (preview) return { ...challenge, developmentCode: code };
     let providerId: string;
     try {
       providerId = await this.sms.sendAuthentication(row.phone, code, data.locale);
@@ -194,7 +218,7 @@ export class IdentityService {
         [challengeId, providerId],
       );
     });
-    return { challengeId, maskedPhone: `+${row.phone.slice(0, 3)} ******${row.phone.slice(-3)}` };
+    return challenge;
   }
   async memberVerify(input: unknown, ip: string, res: CookieResponse): Promise<void> {
     const data = parse(verify, input);
@@ -230,7 +254,10 @@ export class IdentityService {
         row.consumed_at ||
         row.attempts >= 5 ||
         row.expires_at.getTime() <= Date.now() ||
-        row.delivery_status !== 'accepted'
+        !(
+          row.delivery_status === 'accepted' ||
+          (row.delivery_status === 'local_preview' && this.config.permitsLocalOtp(ip))
+        )
       )
         return false;
       await client.query('UPDATE login_challenges SET attempts=attempts+1 WHERE id=$1', [
@@ -246,8 +273,19 @@ export class IdentityService {
       await client.query('UPDATE login_challenges SET consumed_at=now() WHERE id=$1', [
         data.challengeId,
       ]);
-      await client.query('UPDATE members SET phone_verified_at=now() WHERE id=$1', [row.member_id]);
-      await this.sessions.issue('member', row.member_id, res, row.identity_version, client);
+      const localPreview = row.delivery_status === 'local_preview';
+      if (!localPreview)
+        await client.query('UPDATE members SET phone_verified_at=now() WHERE id=$1', [
+          row.member_id,
+        ]);
+      await this.sessions.issue(
+        'member',
+        row.member_id,
+        res,
+        row.identity_version,
+        client,
+        localPreview,
+      );
       return true;
     });
     if (!result)

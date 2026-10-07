@@ -7,6 +7,7 @@ import {
   type Locale,
   type PublicSite,
   type MemberDashboard,
+  type MemberLoginChallenge,
 } from '@fightclub/shared';
 import { api } from '@/lib/api';
 import {
@@ -26,17 +27,16 @@ import {
   useResource,
 } from './ui';
 import './portal.css';
-type Challenge = { challengeId: string; maskedPhone: string };
 function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: () => void }) {
   const [nationalId, setNationalId] = useState('');
   const [phone, setPhone] = useState('');
   const [authConsent, setAuthConsent] = useState(false);
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [challenge, setChallenge] = useState<MemberLoginChallenge | null>(null);
   const [code, setCode] = useState('');
   const action = useMutation();
   async function request() {
     const result = await action.run(() =>
-      api<Challenge>(
+      api<MemberLoginChallenge>(
         '/member/login',
         jsonRequest('POST', { nationalId, phone, authConsent, locale }),
       ),
@@ -69,15 +69,34 @@ function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: () => v
           {say(
             locale,
             challenge
-              ? `Enter the code sent by SMS to ${challenge.maskedPhone}.`
+              ? challenge.developmentCode !== undefined
+                ? 'Enter the local preview code shown below. No SMS was sent.'
+                : `Enter the code sent by SMS to ${challenge.maskedPhone}.`
               : 'Sign in with the ID and mobile number registered by the club.',
             challenge
-              ? `أدخل الرمز المرسل برسالة نصية إلى ${challenge.maskedPhone}.`
+              ? challenge.developmentCode !== undefined
+                ? 'أدخل رمز الاختبار المحلي الظاهر أدناه. لم يتم إرسال رسالة نصية.'
+                : `أدخل الرمز المرسل برسالة نصية إلى ${challenge.maskedPhone}.`
               : 'ادخل باستخدام الهوية ورقم الجوال المسجلين لدى النادي.',
           )}
         </p>
         {challenge ? (
           <form onSubmit={submit(verify)}>
+            {challenge.developmentCode !== undefined && (
+              <div className="portal-alert" role="status">
+                <strong>{say(locale, 'Local preview code', 'رمز الاختبار المحلي')}</strong>
+                <p className="portal-otp" dir="ltr">
+                  {challenge.developmentCode}
+                </p>
+                <p>
+                  {say(
+                    locale,
+                    'No SMS was sent. Local testing only.',
+                    'لم يتم إرسال رسالة نصية. للاختبار المحلي فقط.',
+                  )}
+                </p>
+              </div>
+            )}
             <Field label={say(locale, 'Verification code', 'رمز التحقق')}>
               <input
                 autoFocus
@@ -152,7 +171,7 @@ function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: () => v
             </button>
           </form>
         )}
-        <Feedback action={action} locale={locale} />
+        <Feedback action={{ ...action, success: false }} locale={locale} />
         <p className="portal-hint">
           {say(
             locale,

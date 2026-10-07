@@ -14,6 +14,7 @@ const values = {
   ADMIN_PASSWORD: randomBytes(24).toString('base64url'),
   MEDIA_STORAGE: 'local',
   SMS_PROVIDER: 'taqnyat',
+  LOCAL_OTP_PREVIEW: 'true',
   MEDIA_DIRECTORY: '.runtime/media',
   MEDIA_PUBLIC_URL: 'http://127.0.0.1:3100/api/media',
 };

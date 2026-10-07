@@ -35,6 +35,6 @@ async function bootstrap(): Promise<void> {
   });
   app.useGlobalFilters(new ApiErrorFilter());
   app.enableShutdownHooks();
-  await app.listen(runtime.port, '0.0.0.0');
+  await app.listen(runtime.port, runtime.development ? '127.0.0.1' : '0.0.0.0');
 }
 void bootstrap();

@@ -87,6 +87,11 @@ export type ClassSession = {
   notes: Localized;
   status: 'scheduled' | 'cancelled';
 };
+export type MemberLoginChallenge = {
+  challengeId: string;
+  maskedPhone: string;
+  developmentCode?: string;
+};
 export type Consent = { updates: boolean; marketing: boolean };
 export type Membership = {
   id: string;
@@ -157,11 +162,19 @@ export type DashboardStats = {
 export type MessageDelivery = {
   id: string;
   memberName: string;
-  channel: 'sms' | 'whatsapp';
+  channel: 'sms' | 'whatsapp' | 'local';
   category: 'authentication' | 'utility' | 'marketing';
   event: string;
   status:
-    'queued' | 'sending' | 'accepted' | 'delivered' | 'read' | 'failed' | 'suppressed' | 'unknown';
+    | 'queued'
+    | 'sending'
+    | 'accepted'
+    | 'delivered'
+    | 'read'
+    | 'failed'
+    | 'suppressed'
+    | 'unknown'
+    | 'preview';
   error: string | null;
   createdAt: string;
 };
