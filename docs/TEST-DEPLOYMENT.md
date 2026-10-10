@@ -46,6 +46,12 @@ app directory and shared workspace to be uploaded. Use the current Vercel CLI
 without changing unrelated projects. On macOS, if its native binary fails to
 create a deployment, `VERCEL_CLI_USE_NATIVE_BINARY=0` selects its Node runtime.
 
+NestJS 12 ships ESM packages. The existing CommonJS application uses Node's
+`require(esm)` support, which Lambda runtimes disable by default. The API's
+`NODE_OPTIONS=--experimental-require-module` enables the documented runtime
+compatibility mode. Preserve other runtime flags if present. See the
+[NestJS migration guide](https://docs.nestjs.com/migration-guide).
+
 ## Real delivery and deferred services
 
 Keep `SMS_PROVIDER=taqnyat`. After the club purchases credit and configures its
