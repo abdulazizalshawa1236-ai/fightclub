@@ -38,8 +38,13 @@ enabled and distribute the private frontend access link only to the intended
 demonstration audience.
 
 The project root directories are `apps/api` and `apps/web`. Their build commands
-build `@fightclub/shared` before their respective workspace. Use the current
-Vercel CLI without changing unrelated projects.
+build `@fightclub/shared` before their respective workspace. Set the install
+command to `cd ../.. && npm ci --include=dev` so production builds retain the
+root workspace's TypeScript dependency. Deploy
+from the repository root with the appropriate project link, allowing both the
+app directory and shared workspace to be uploaded. Use the current Vercel CLI
+without changing unrelated projects. On macOS, if its native binary fails to
+create a deployment, `VERCEL_CLI_USE_NATIVE_BINARY=0` selects its Node runtime.
 
 ## Real delivery and deferred services
 
