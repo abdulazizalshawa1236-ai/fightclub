@@ -32,6 +32,8 @@ export function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: 
   const [code, setCode] = useState('');
   const action = useMutation();
   const reduced = useReducedMotion();
+  const previewCode = challenge?.demoCode ?? challenge?.developmentCode;
+  const hostedDemo = challenge?.demoCode !== undefined;
   async function request() {
     const result = await action.run(() =>
       api<MemberLoginChallenge>(
@@ -110,36 +112,54 @@ export function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: 
               <h2>
                 {say(
                   locale,
-                  challenge ? 'Verify your number' : 'Welcome to your corner',
-                  challenge ? 'تحقق من رقمك' : 'أهلاً بك في ناديك',
+                  challenge
+                    ? previewCode
+                      ? 'Complete your demo login'
+                      : 'Verify your number'
+                    : 'Welcome to your corner',
+                  challenge
+                    ? previewCode
+                      ? 'أكمل الدخول التجريبي'
+                      : 'تحقق من رقمك'
+                    : 'أهلاً بك في ناديك',
                 )}
               </h2>
               <p className="member-muted">
                 {say(
                   locale,
                   challenge
-                    ? challenge.developmentCode !== undefined
-                      ? 'Enter the local preview code shown below. No SMS was sent.'
+                    ? previewCode !== undefined
+                      ? 'Enter the demonstration code shown below. No SMS was sent.'
                       : `Enter the code sent by SMS to ${challenge.maskedPhone}.`
                     : 'Sign in with the ID and mobile number registered by the club.',
                   challenge
-                    ? challenge.developmentCode !== undefined
-                      ? 'أدخل رمز الاختبار المحلي الظاهر أدناه. لم يتم إرسال رسالة نصية.'
+                    ? previewCode !== undefined
+                      ? 'أدخل الرمز التجريبي الظاهر أدناه. لم يتم إرسال رسالة نصية.'
                       : `أدخل الرمز المرسل برسالة نصية إلى ${challenge.maskedPhone}.`
                     : 'ادخل باستخدام الهوية ورقم الجوال المسجلين لدى النادي.',
                 )}
               </p>
               {challenge ? (
                 <form onSubmit={submit(verify)}>
-                  {challenge.developmentCode !== undefined && (
+                  {previewCode !== undefined && (
                     <div className="member-local-code" role="status">
-                      <strong>{say(locale, 'Local preview code', 'رمز الاختبار المحلي')}</strong>
-                      <p dir="ltr">{challenge.developmentCode}</p>
+                      <strong>
+                        {say(
+                          locale,
+                          hostedDemo ? 'Stakeholder demonstration code' : 'Local preview code',
+                          hostedDemo ? 'رمز العرض التجريبي' : 'رمز الاختبار المحلي',
+                        )}
+                      </strong>
+                      <p dir="ltr">{previewCode}</p>
                       <small>
                         {say(
                           locale,
-                          'No SMS was sent. Local testing only.',
-                          'لم يتم إرسال رسالة نصية. للاختبار المحلي فقط.',
+                          hostedDemo
+                            ? 'Test environment only. No SMS was sent. This does not verify phone ownership.'
+                            : 'No SMS was sent. Local testing only.',
+                          hostedDemo
+                            ? 'للبيئة التجريبية فقط. لم يتم إرسال رسالة نصية، ولا يُثبت هذا الدخول ملكية رقم الجوال.'
+                            : 'لم يتم إرسال رسالة نصية. للاختبار المحلي فقط.',
                         )}
                       </small>
                     </div>
@@ -243,8 +263,8 @@ export function MemberLogin({ locale, onSuccess }: { locale: Locale; onSuccess: 
                     )}
                     {say(
                       locale,
-                      action.pending ? 'Requesting code…' : 'Send code by SMS',
-                      action.pending ? 'جارٍ طلب الرمز…' : 'إرسال الرمز برسالة نصية',
+                      action.pending ? 'Requesting code…' : 'Request login code',
+                      action.pending ? 'جارٍ طلب الرمز…' : 'طلب رمز الدخول',
                     )}
                   </button>
                 </form>

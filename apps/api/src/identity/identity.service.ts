@@ -118,8 +118,10 @@ export class IdentityService {
   }
   async memberLogin(input: unknown, ip: string): Promise<MemberLoginChallenge> {
     const data = parse(login, input);
-    const preview = this.config.localOtpPreview;
-    if (preview && !this.config.permitsLocalOtp(ip))
+    const localPreview = this.config.localOtpPreview;
+    const hostedDemo = this.config.hostedOtpDemo;
+    const preview = localPreview || hostedDemo;
+    if (localPreview && !this.config.permitsLocalOtp(ip))
       throw new ForbiddenException({
         code: 'LOCAL_PREVIEW_FORBIDDEN',
         message: 'Local OTP preview is available only on this computer.',
@@ -140,6 +142,11 @@ export class IdentityService {
       throw new UnauthorizedException({
         code: 'MEMBER_NOT_FOUND',
         message: 'These details could not be verified. Please contact the club.',
+      });
+    if (hostedDemo && !this.config.permitsHostedOtp(row.id))
+      throw new ForbiddenException({
+        code: 'DEMO_MEMBER_REQUIRED',
+        message: 'Hosted demonstrations are available only for the designated test member.',
       });
     const challengeId = randomUUID(),
       code = String(randomInt(100000, 1000000));
@@ -168,7 +175,7 @@ export class IdentityService {
           row.phone,
           row.identity_version,
           this.crypto.digest(`${challengeId}:${code}`),
-          preview ? 'local_preview' : 'sending',
+          hostedDemo ? 'hosted_demo' : localPreview ? 'local_preview' : 'sending',
         ],
       );
       await client.query(
@@ -179,19 +186,28 @@ export class IdentityService {
           JSON.stringify({ challengeId }),
           `login:${challengeId}`,
           preview ? 'preview' : 'sending',
-          preview ? 'local' : 'sms',
+          hostedDemo ? 'demo' : localPreview ? 'local' : 'sms',
         ],
       );
       await client.query(
         "INSERT INTO consent_events(id,member_id,category,allowed,source) VALUES($1,$2,'authentication',true,$3)",
-        [randomUUID(), row.id, preview ? 'member.login.local_preview' : 'member.login.sms'],
+        [
+          randomUUID(),
+          row.id,
+          hostedDemo
+            ? 'member.login.hosted_demo'
+            : localPreview
+              ? 'member.login.local_preview'
+              : 'member.login.sms',
+        ],
       );
     });
     const challenge = {
       challengeId,
       maskedPhone: `+${row.phone.slice(0, 3)} ******${row.phone.slice(-3)}`,
     };
-    if (preview) return { ...challenge, developmentCode: code };
+    if (hostedDemo) return { ...challenge, demoCode: code };
+    if (localPreview) return { ...challenge, developmentCode: code };
     let providerId: string;
     try {
       providerId = await this.sms.sendAuthentication(row.phone, code, data.locale);
@@ -256,7 +272,8 @@ export class IdentityService {
         row.expires_at.getTime() <= Date.now() ||
         !(
           row.delivery_status === 'accepted' ||
-          (row.delivery_status === 'local_preview' && this.config.permitsLocalOtp(ip))
+          (row.delivery_status === 'local_preview' && this.config.permitsLocalOtp(ip)) ||
+          (row.delivery_status === 'hosted_demo' && this.config.permitsHostedOtp(row.member_id))
         )
       )
         return false;
@@ -274,7 +291,8 @@ export class IdentityService {
         data.challengeId,
       ]);
       const localPreview = row.delivery_status === 'local_preview';
-      if (!localPreview)
+      const hostedDemo = row.delivery_status === 'hosted_demo';
+      if (!localPreview && !hostedDemo)
         await client.query('UPDATE members SET phone_verified_at=now() WHERE id=$1', [
           row.member_id,
         ]);
@@ -285,6 +303,7 @@ export class IdentityService {
         row.identity_version,
         client,
         localPreview,
+        hostedDemo,
       );
       return true;
     });

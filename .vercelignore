@@ -1,0 +1,13 @@
+.runtime/
+source-audit/
+audit/
+output/
+.env*
+**/.env*
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+**/dist/
+*.db*
+**/*.db*

@@ -100,6 +100,7 @@ export type MemberLoginChallenge = {
   challengeId: string;
   maskedPhone: string;
   developmentCode?: string;
+  demoCode?: string;
 };
 export type Consent = { updates: boolean; marketing: boolean };
 export type Membership = {
@@ -171,7 +172,7 @@ export type DashboardStats = {
 export type MessageDelivery = {
   id: string;
   memberName: string;
-  channel: 'sms' | 'whatsapp' | 'local';
+  channel: 'sms' | 'whatsapp' | 'local' | 'demo';
   category: 'authentication' | 'utility' | 'marketing';
   event: string;
   status:

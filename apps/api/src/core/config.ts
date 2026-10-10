@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 export function isLoopbackAddress(ip: string): boolean {
   return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
 }
-function localPreviewFlag(): boolean {
-  const value = process.env.LOCAL_OTP_PREVIEW;
+function booleanFlag(name: string): boolean {
+  const value = process.env[name];
   if (value !== undefined && value !== 'true' && value !== 'false')
-    throw new Error('LOCAL_OTP_PREVIEW must be true or false');
+    throw new Error(`${name} must be true or false`);
   return value === 'true';
 }
 @Injectable()
@@ -17,8 +17,27 @@ export class RuntimeConfig {
   readonly encryptionKey = hexKey('DATA_ENCRYPTION_KEY');
   readonly digestKey = hexKey('IDENTITY_DIGEST_KEY');
   readonly port = Number(process.env.PORT || 4100);
-  readonly localOtpPreview = localPreviewFlag();
+  readonly localOtpPreview = booleanFlag('LOCAL_OTP_PREVIEW');
+  readonly hostedOtpDemo = booleanFlag('HOSTED_OTP_DEMO');
+  readonly demoMemberId = process.env.DEMO_MEMBER_ID;
   constructor() {
+    if (this.hostedOtpDemo) {
+      const origin = new URL(this.appOrigin);
+      if (
+        this.localOtpPreview ||
+        process.env.APP_ENV !== 'test' ||
+        origin.protocol !== 'https:' ||
+        origin.origin !== this.appOrigin ||
+        process.env.DEMO_ORIGIN !== this.appOrigin ||
+        !this.demoMemberId ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          this.demoMemberId,
+        )
+      )
+        throw new Error(
+          'Hosted OTP demo requires APP_ENV=test, matching canonical HTTPS APP_ORIGIN and DEMO_ORIGIN, one DEMO_MEMBER_ID, and local preview disabled',
+        );
+    }
     if (!this.localOtpPreview) return;
     const origin = new URL(this.appOrigin);
     const loopbackOrigin = ['127.0.0.1', 'localhost', '[::1]'].includes(origin.hostname);
@@ -40,6 +59,9 @@ export class RuntimeConfig {
   }
   permitsLocalOtp(ip: string): boolean {
     return this.localOtpPreview && isLoopbackAddress(ip);
+  }
+  permitsHostedOtp(memberId: string): boolean {
+    return this.hostedOtpDemo && memberId === this.demoMemberId;
   }
 }
 function required(name: string): string {

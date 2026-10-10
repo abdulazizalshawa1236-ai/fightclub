@@ -36,13 +36,16 @@ export class SessionService {
     identityVersion: number | null = null,
     client?: PoolClient,
     localPreview = false,
+    hostedDemo = false,
   ): Promise<void> {
     if (localPreview && kind !== 'member')
       throw new Error('Local preview sessions are only available for members');
+    if (hostedDemo && (kind !== 'member' || localPreview || !this.config.permitsHostedOtp(id)))
+      throw new Error('Hosted demo sessions require the designated test member');
     const token = randomBytes(32).toString('base64url');
     const sql =
-      "INSERT INTO sessions(token_digest,kind,actor_id,identity_version,expires_at,local_preview) VALUES($1,$2,$3,$4,now()+interval '12 hours',$5)";
-    const params = [this.crypto.digest(token), kind, id, identityVersion, localPreview];
+      "INSERT INTO sessions(token_digest,kind,actor_id,identity_version,expires_at,local_preview,hosted_demo) VALUES($1,$2,$3,$4,now()+interval '12 hours',$5,$6)";
+    const params = [this.crypto.digest(token), kind, id, identityVersion, localPreview, hostedDemo];
     if (client) await client.query(sql, params);
     else await this.db.query(sql, params);
     res.cookie(`fc_${kind}`, token, {
@@ -61,14 +64,23 @@ export class SessionService {
         : undefined;
     if (typeof token !== 'string' || token.length > 100)
       throw new UnauthorizedException({ code: 'SESSION_REQUIRED', message: 'Please sign in.' });
-    const result = await this.db.query<{ id: string; username?: string; local_preview?: boolean }>(
+    const result = await this.db.query<{
+      id: string;
+      username?: string;
+      local_preview?: boolean;
+      hosted_demo?: boolean;
+    }>(
       kind === 'admin'
         ? "SELECT a.id,a.username FROM sessions s JOIN admins a ON a.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='admin' AND s.expires_at>now()"
-        : "SELECT m.id,s.local_preview FROM sessions s JOIN members m ON m.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='member' AND s.expires_at>now() AND m.access_enabled AND m.archived_at IS NULL AND (m.phone_verified_at IS NOT NULL OR s.local_preview) AND s.identity_version=m.identity_version",
+        : "SELECT m.id,s.local_preview,s.hosted_demo FROM sessions s JOIN members m ON m.id=s.actor_id WHERE s.token_digest=$1 AND s.kind='member' AND s.expires_at>now() AND m.access_enabled AND m.archived_at IS NULL AND (m.phone_verified_at IS NOT NULL OR s.local_preview OR s.hosted_demo) AND s.identity_version=m.identity_version",
       [this.crypto.digest(token)],
     );
     const row = result.rows[0];
-    if (!row || (row.local_preview && !this.config.permitsLocalOtp(req.ip || '')))
+    if (
+      !row ||
+      (row.local_preview && !this.config.permitsLocalOtp(req.ip || '')) ||
+      (row.hosted_demo && !this.config.permitsHostedOtp(row.id))
+    )
       throw new UnauthorizedException({
         code: 'SESSION_EXPIRED',
         message: 'Your session has expired. Please sign in again.',
