@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
-import { randomInt, randomUUID } from 'node:crypto';
+import { createHmac, randomInt, randomUUID } from 'node:crypto';
 import { hash } from 'bcrypt';
 import assert from 'node:assert/strict';
 import { RuntimeConfig } from '../src/core/config';
@@ -15,6 +15,7 @@ import { SmsService } from '../src/sms/sms.service';
 import { SmsHttpClient, SmsRequest } from '../src/sms/sms-http.client';
 import { HttpException } from '@nestjs/common';
 import { ProviderRejected, ProviderUnknown } from '../src/core/delivery-errors';
+import { clientIpOf } from '../src/identity/client-ip';
 import { addDays, todayRiyadh } from '../src/members/membership-domain';
 config({ path: resolve(process.cwd(), '../../.env'), quiet: true });
 config({ quiet: true });
@@ -357,6 +358,225 @@ async function verifyLocalPreview(
     'PASS local preview hash-only storage, no provider send, concurrency, expiry, attempt bounds, session fencing and no fabricated phone verification\n',
   );
 }
+async function verifyHostedDemo(
+  db: DatabaseService,
+  crypto: CryptoService,
+  sms: SmsService,
+  smsClient: CapturingSmsClient,
+  memberId: string,
+  nationalId: string,
+  phone: string,
+): Promise<void> {
+  await withEnvironment({ TRUSTED_PROXY_SECRET: 'regression-proxy-secret' }, async () => {
+    const signature = createHmac('sha256', 'regression-proxy-secret')
+      .update('198.51.100.73')
+      .digest('hex');
+    assert.equal(
+      clientIpOf({
+        ip: '127.0.0.1',
+        headers: { 'x-fc-client-ip': '198.51.100.73', 'x-fc-client-signature': signature },
+      }),
+      '198.51.100.73',
+    );
+    assert.equal(
+      clientIpOf({
+        ip: '127.0.0.1',
+        headers: { 'x-fc-client-ip': '198.51.100.74', 'x-fc-client-signature': signature },
+      }),
+      '127.0.0.1',
+    );
+    assert.equal(
+      clientIpOf({
+        ip: '127.0.0.1',
+        headers: { 'x-fc-client-ip': 'invalid', 'x-fc-client-signature': signature },
+      }),
+      '127.0.0.1',
+    );
+  });
+  const safe = {
+    NODE_ENV: 'production',
+    APP_ENV: 'test',
+    LOCAL_OTP_PREVIEW: 'false',
+    HOSTED_OTP_DEMO: 'true',
+    DEMO_MEMBER_ID: memberId,
+    APP_ORIGIN: 'https://demo.example.test',
+    DEMO_ORIGIN: 'https://demo.example.test',
+  };
+  for (const unsafe of [
+    { APP_ENV: 'production' },
+    { LOCAL_OTP_PREVIEW: 'true' },
+    { DEMO_MEMBER_ID: '' },
+    { DEMO_ORIGIN: 'https://other.example.test' },
+    { APP_ORIGIN: 'http://demo.example.test', DEMO_ORIGIN: 'http://demo.example.test' },
+    { APP_ORIGIN: 'https://demo.example.test/path', DEMO_ORIGIN: 'https://demo.example.test/path' },
+    { HOSTED_OTP_DEMO: 'yes' },
+  ])
+    await withEnvironment({ ...safe, ...unsafe }, async () =>
+      assert.throws(() => new RuntimeConfig()),
+    );
+  const proof = (
+    await db.query<{ proof: Date | null }>(
+      'SELECT phone_verified_at proof FROM members WHERE id=$1',
+      [memberId],
+    )
+  ).rows[0].proof;
+  await db.query('UPDATE members SET phone_verified_at=NULL WHERE id=$1', [memberId]);
+  await db.query('DELETE FROM rate_limits WHERE key=ANY($1::text[])', [
+    [crypto.digest(`member-id:${nationalId}`), crypto.digest(`member-phone:${phone}`)],
+  ]);
+  const input = { nationalId, phone, authConsent: true, locale: 'en' };
+  const ip = '198.51.100.73';
+  let token = '';
+  const response: CookieResponse = {
+    cookie(name, value, options) {
+      assert.equal(name, 'fc_member');
+      assert.equal(options.secure, true);
+      token = value;
+    },
+    clearCookie() {},
+  };
+  function services() {
+    const runtime = new RuntimeConfig();
+    const sessions = new SessionService(db, crypto, runtime);
+    return {
+      sessions,
+      identity: new IdentityService(
+        db,
+        crypto,
+        new RateLimitService(db, crypto),
+        sessions,
+        sms,
+        runtime,
+      ),
+    };
+  }
+  try {
+    await withEnvironment(safe, async () => {
+      const { identity, sessions } = services();
+      const calls = smsClient.calls;
+      const challenge = await identity.memberLogin(input, ip);
+      assert.match(challenge.demoCode || '', /^\d{6}$/);
+      assert.equal(challenge.developmentCode, undefined);
+      assert.equal(smsClient.calls, calls);
+      const stored = (
+        await db.query<{
+          delivery_status: string;
+          code_digest: string;
+          channel: string;
+          status: string;
+          provider_id: string | null;
+        }>(
+          'SELECT c.delivery_status,c.code_digest,o.channel,o.status,o.provider_id FROM login_challenges c JOIN outbox o ON o.id=c.id WHERE c.id=$1',
+          [challenge.challengeId],
+        )
+      ).rows[0];
+      assert.equal(stored.delivery_status, 'hosted_demo');
+      assert.equal(stored.channel, 'demo');
+      assert.equal(stored.status, 'preview');
+      assert.equal(stored.provider_id, null);
+      assert.equal(
+        stored.code_digest,
+        crypto.digest(`${challenge.challengeId}:${challenge.demoCode}`),
+      );
+      const wrongCode = challenge.demoCode === '100000' ? '100001' : '100000';
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: challenge.challengeId, code: wrongCode },
+          ip,
+          response,
+        ),
+      );
+      const verified = await Promise.allSettled(
+        [0, 1].map(() =>
+          identity.memberVerify(
+            { challengeId: challenge.challengeId, code: challenge.demoCode },
+            ip,
+            response,
+          ),
+        ),
+      );
+      assert.equal(verified.filter((r) => r.status === 'fulfilled').length, 1);
+      assert.equal(
+        (await sessions.resolve({ cookies: { fc_member: token }, ip }, 'member')).id,
+        memberId,
+      );
+      assert.equal(
+        (
+          await db.query<{ proof: Date | null }>(
+            'SELECT phone_verified_at proof FROM members WHERE id=$1',
+            [memberId],
+          )
+        ).rows[0].proof,
+        null,
+      );
+      const pending = await identity.memberLogin(input, ip);
+      await withEnvironment({ HOSTED_OTP_DEMO: 'false' }, async () => {
+        const disabled = services();
+        await assert.rejects(
+          disabled.sessions.resolve({ cookies: { fc_member: token }, ip }, 'member'),
+        );
+        await assert.rejects(
+          disabled.identity.memberVerify(
+            { challengeId: pending.challengeId, code: pending.demoCode },
+            ip,
+            response,
+          ),
+        );
+      });
+      await withEnvironment({ DEMO_MEMBER_ID: randomUUID() }, async () => {
+        const changed = services();
+        await assert.rejects(changed.identity.memberLogin(input, ip), (e) =>
+          errorCode(e, 'DEMO_MEMBER_REQUIRED'),
+        );
+        await assert.rejects(
+          changed.sessions.resolve({ cookies: { fc_member: token }, ip }, 'member'),
+        );
+        await assert.rejects(
+          changed.identity.memberVerify(
+            { challengeId: pending.challengeId, code: pending.demoCode },
+            ip,
+            response,
+          ),
+        );
+      });
+      await db.query(
+        "UPDATE login_challenges SET expires_at=now()-interval '1 minute' WHERE id=$1",
+        [pending.challengeId],
+      );
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: pending.challengeId, code: pending.demoCode },
+          ip,
+          response,
+        ),
+      );
+      const bounded = await identity.memberLogin(input, ip);
+      await db.query('UPDATE login_challenges SET attempts=5 WHERE id=$1', [bounded.challengeId]);
+      await assert.rejects(
+        identity.memberVerify(
+          { challengeId: bounded.challengeId, code: bounded.demoCode },
+          ip,
+          response,
+        ),
+      );
+      assert.equal(smsClient.calls, calls);
+      assert.equal(
+        (
+          await db.query<{ source: string }>(
+            "SELECT source FROM consent_events WHERE member_id=$1 AND source='member.login.hosted_demo' LIMIT 1",
+            [memberId],
+          )
+        ).rows[0]?.source,
+        'member.login.hosted_demo',
+      );
+    });
+  } finally {
+    await db.query('UPDATE members SET phone_verified_at=$2 WHERE id=$1', [memberId, proof]);
+  }
+  process.stdout.write(
+    'PASS hosted demo startup gates, allowlisted member, no SMS, no phone verification, secure cookie, concurrent one-time use, expiry, attempts and disabled session/challenge fencing\n',
+  );
+}
 async function main(): Promise<void> {
   if (
     !process.env.DATABASE_URL ||
@@ -509,6 +729,7 @@ async function main(): Promise<void> {
       'PASS SMS preflight without challenge writes, numeric/string receipts, recipient rejection, concurrent single use, consent preservation and unknown outcome without retry\n',
     );
     await verifyLocalPreview(db, crypto, sms, smsClient, member.id, idNumber, phone, response);
+    await verifyHostedDemo(db, crypto, sms, smsClient, member.id, idNumber, phone);
     const input = {
       planId: catalogue.id,
       sports: [sport.id],

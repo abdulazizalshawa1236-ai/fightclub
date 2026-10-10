@@ -4,6 +4,8 @@ const config: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   async rewrites() {
+    // Protected test APIs are called through the server-side route handler.
+    if (process.env.API_PROTECTION_BYPASS) return [];
     return [
       {
         source: '/api/:path*',

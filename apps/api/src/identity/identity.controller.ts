@@ -3,6 +3,7 @@ import { Response } from 'express';
 import { AdminGuard } from './guards';
 import { IdentityService } from './identity.service';
 import { actorOf, ActorRequest, SessionService } from './sessions';
+import { clientIpOf } from './client-ip';
 @Controller()
 export class IdentityController {
   constructor(
@@ -14,7 +15,7 @@ export class IdentityController {
     @Req() req: ActorRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.identity.adminLogin(body, req.ip || 'unknown', res);
+    return this.identity.adminLogin(body, clientIpOf(req), res);
   }
   @Get('admin/me') @UseGuards(AdminGuard) me(@Req() req: ActorRequest) {
     return { username: actorOf(req).username };
@@ -34,14 +35,14 @@ export class IdentityController {
     return { ok: true };
   }
   @Post('member/login') memberLogin(@Body() body: unknown, @Req() req: ActorRequest) {
-    return this.identity.memberLogin(body, req.ip || 'unknown');
+    return this.identity.memberLogin(body, clientIpOf(req));
   }
   @Post('member/verify') async verify(
     @Body() body: unknown,
     @Req() req: ActorRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.identity.memberVerify(body, req.ip || 'unknown', res);
+    await this.identity.memberVerify(body, clientIpOf(req), res);
     return { ok: true };
   }
   @Post('member/logout') async memberLogout(
